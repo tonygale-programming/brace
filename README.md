@@ -12,13 +12,23 @@ Format, minify and validate JSON in your browser. Nothing is uploaded: all work 
 - Light and dark themes
 - Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies
 
+## Project structure
+
+```
+index.html   page markup
+styles.css   theme colours (light and dark), layout and syntax colours
+app.js       parsing, error locating, formatting, tree view and controls
+```
+
 ## Run locally
 
-It's a single static file. Open `index.html` in a browser, or serve the folder:
+Serve the folder with any static server, then open http://localhost:8000:
 
 ```bash
 python3 -m http.server 8000
 ```
+
+Opening `index.html` directly from disk also works.
 
 ## Tech
 
