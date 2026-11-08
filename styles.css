@@ -144,7 +144,7 @@ pre.code.plain { padding-left: 14px; white-space: pre; }
 .errcard p { margin: 0; line-height: 1.5; }
 .errcard pre { margin: 0; padding: 10px 12px; background: var(--surface); border-radius: 6px; font: 12.5px/1.55 var(--mono); overflow-x: auto; color: var(--ink); }
 .errcard pre .caret { color: var(--bad); font-weight: 600; }
-.errcard button { align-self: flex-start; }
+.errcard .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Status */
 .status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; color: var(--muted); min-height: 26px; }

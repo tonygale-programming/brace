@@ -42,6 +42,7 @@
             <input type="file" id="file" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
           </label>
           <button class="ghost" id="btn-sample" type="button">Sample</button>
+          <button class="ghost" id="btn-repair" type="button" title="Fix trailing commas, single quotes, comments, missing quotes and more">Repair</button>
           <button class="ghost" id="btn-clear" type="button">Clear</button>
         </div>
       </div>
@@ -80,6 +81,11 @@
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<!-- lossless-json: keeps numbers exact. jsonrepair: fixes broken JSON. Both pinned with integrity hashes. -->
+<script src="https://cdn.jsdelivr.net/npm/lossless-json@4.3.3/lib/umd/lossless-json.js"
+  integrity="sha384-WePis4DZsGmbLSh7jVUfBh/a94MXtwlbHPEXxp1bW6ta6shOIfrFw2vG2bTRVlGc" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsonrepair@3.15.0/lib/umd/jsonrepair.min.js"
+  integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG" crossorigin="anonymous"></script>
 <script src="app.js"></script>
 </body>
 </html>

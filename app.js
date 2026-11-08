@@ -18,6 +18,16 @@
 
   const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
+  /* ---------- Libraries (loaded from the CDN in index.html) ----------
+     lossless-json keeps every number exactly as written; jsonrepair fixes broken JSON.
+     If either fails to load, the page falls back to the built-in JSON and hides Repair. */
+  const LJ = window.LosslessJSON || null;
+  const repairJSON = (window.JSONRepair && window.JSONRepair.jsonrepair) || null;
+  const isNum = (v) => !!LJ && LJ.isLosslessNumber(v);
+  const isLeaf = (v) => v === null || typeof v !== 'object' || isNum(v);
+  const parseJSON = (t) => LJ ? LJ.parse(t) : JSON.parse(t);
+  const toJSON = (v, space) => LJ ? LJ.stringify(v, null, space) : JSON.stringify(v, null, space);
+
   /* ---------- Error location: a strict JSON scanner that reports where and why ---------- */
   function locate(text) {
     let i = 0;
@@ -154,6 +164,7 @@
 
   function leafHtml(v) {
     if (v === null) return '<span class="t-z">null</span>';
+    if (isNum(v)) return '<span class="t-n">' + esc(v.value) + '</span>';
     if (typeof v === 'string') return '<span class="t-s">' + esc(JSON.stringify(v)) + '</span>';
     if (typeof v === 'number') return '<span class="t-n">' + v + '</span>';
     return '<span class="t-b">' + v + '</span>';
@@ -166,7 +177,7 @@
   }
 
   function makeNode(k, v, path, depth, isIdx) {
-    if (v === null || typeof v !== 'object') {
+    if (isLeaf(v)) {
       const row = document.createElement('div');
       row.className = 'leaf';
       row.dataset.path = path;
@@ -207,24 +218,38 @@
 
   /* ---------- Main ---------- */
   function sortDeep(v) {
+    if (isLeaf(v)) return v;
     if (Array.isArray(v)) return v.map(sortDeep);
-    if (v && typeof v === 'object') {
-      const o = {};
-      for (const k of Object.keys(v).sort((a, b) => a.localeCompare(b))) o[k] = sortDeep(v[k]);
-      return o;
-    }
-    return v;
+    const o = {};
+    for (const k of Object.keys(v).sort((a, b) => a.localeCompare(b))) o[k] = sortDeep(v[k]);
+    return o;
   }
+  // count: all values; depth: nesting; exact: numbers that plain JSON.parse would round or lose
   function measure(v) {
-    let count = 0, depth = 0;
+    let count = 0, depth = 0, exact = 0;
     const stack = [[v, 1]];
     while (stack.length) {
       const [x, d] = stack.pop();
       count++;
       if (d > depth) depth = d;
-      if (x && typeof x === 'object') for (const k in x) stack.push([x[k], d + 1]);
+      if (isNum(x)) { if (!LJ.isSafeNumber(x.value)) exact++; }
+      else if (!isLeaf(x)) for (const k in x) stack.push([x[k], d + 1]);
     }
-    return { count, depth };
+    return { count, depth, exact };
+  }
+
+  // Errors my scanner can't see (it only checks syntax) come from the parser, e.g. duplicate keys
+  function parserError(e) {
+    const msg = String((e && e.message) || e);
+    const at = /at position (\d+)/.exec(msg);
+    const dup = /^Duplicate key '(.*)' encountered/.exec(msg);
+    return {
+      pos: at ? Number(at[1]) : 0,
+      msg: dup
+        ? 'Duplicate key "' + dup[1] + '" with a different value. Programs disagree on which value wins, so keep only one.'
+        : msg.replace(/\s*at position \d+$/, '') + '.',
+      repairable: !dup,
+    };
   }
   const bytes = (s) => { try { return new TextEncoder().encode(s).length; } catch (e) { return s.length; } };
   const fmtBytes = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(2) + ' MB';
@@ -263,12 +288,16 @@
       src = (from > 0 ? '…' : '') + src.slice(from, from + 90) + (from + 90 < src.length ? '…' : '');
       caretAt = caretAt - from + (from > 0 ? 1 : 0);
     }
+    const canRepair = !!repairJSON && err.repairable !== false;
     const view = $('#view-text');
     view.innerHTML =
       '<div class="errcard"><h2>Line ' + line + ', column ' + col + '</h2><p>' + esc(err.msg) + '</p>' +
       '<pre>' + esc(src) + '\n<span class="caret">' + ' '.repeat(Math.max(0, caretAt)) + '^</span></pre>' +
-      '<button type="button" id="btn-goto">Show in input</button></div>';
+      '<div class="actions">' +
+      (canRepair ? '<button type="button" class="primary" id="btn-repair-err">Repair JSON</button>' : '') +
+      '<button type="button" id="btn-goto">Show in input</button></div></div>';
     $('#btn-goto').addEventListener('click', gotoError);
+    if (canRepair) $('#btn-repair-err').addEventListener('click', repair);
     tree.innerHTML = '<div class="empty">Fix the error on line ' + line + ' to see the tree.</div>';
     setChip('bad', 'Invalid JSON');
     stats.innerHTML = '<span>Error at <b>line ' + line + ', col ' + col + '</b></span>';
@@ -288,15 +317,14 @@
     if (!text.trim()) { showEmpty(); return; }
     let data;
     try {
-      data = JSON.parse(text);
+      data = parseJSON(text);
     } catch (e) {
-      const err = locate(text) || { pos: 0, msg: e.message };
-      showError(text, err);
+      showError(text, locate(text) || parserError(e));
       return;
     }
     lastError = null;
     if (sortBox.checked) data = sortDeep(data);
-    current = mode === 'minify' ? JSON.stringify(data) : JSON.stringify(data, null, indentValue());
+    current = mode === 'minify' ? toJSON(data) : toJSON(data, indentValue());
     ensureCodeView();
     renderCode(current, mode === 'minify');
     renderTree(data);
@@ -305,16 +333,52 @@
     stats.innerHTML =
       '<span>Input <b>' + fmtBytes(bytes(text)) + '</b> → output <b>' + fmtBytes(bytes(current)) + '</b></span>' +
       '<span><b>' + m.count.toLocaleString() + '</b> values</span>' +
-      '<span>Depth <b>' + m.depth + '</b></span>';
+      '<span>Depth <b>' + m.depth + '</b></span>' +
+      (m.exact ? '<span title="Plain JSON.parse would round these. Brace keeps them exactly as written."><b>' +
+        m.exact.toLocaleString() + '</b> ' + (m.exact === 1 ? 'number' : 'numbers') + ' kept exact</span>' : '');
   }
 
   /* ---------- Clipboard + toast ---------- */
   let toastTimer;
-  function say(msg) {
+  function say(msg, ms = 1600) {
     toast.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+  }
+
+  /* ---------- Repair (jsonrepair) ---------- */
+  // Replace the input through the editing pipeline so the browser's Undo can bring the original back
+  function replaceInput(text) {
+    input.focus();
+    input.select();
+    let undoable = false;
+    try { undoable = document.execCommand('insertText', false, text) && input.value === text; } catch (e) {}
+    if (!undoable) input.value = text;
+    input.setSelectionRange(0, 0);
+    input.scrollTop = 0;
+    return undoable;
+  }
+  function repair() {
+    const text = input.value;
+    if (!text.trim()) { say('Nothing to repair yet'); return; }
+    if (!repairJSON) { say('Repair is unavailable because its library did not load. Check your connection and reload.', 3600); return; }
+    try { parseJSON(text); say('This is already valid JSON'); return; } catch (e) { /* invalid: repair it */ }
+    let fixed;
+    try {
+      fixed = repairJSON(text);
+    } catch (e) {
+      const where = typeof e.position === 'number' ? ' (line ' + lineCol(text, e.position).line + ')' : '';
+      say('Could not repair this automatically' + where + '. Fix it by hand using the error details.', 3600);
+      return;
+    }
+    if (fixed === text) { say('Repair cannot fix this one. Fix it by hand using the error details.', 3600); return; }
+    const undoable = replaceInput(fixed);
+    isSample = false; $('#sample-badge').hidden = true;
+    clearTimeout(timer);
+    run('format');
+    if (fixed.length < 500000) store.set('brace:draft', fixed);
+    say(undoable ? 'Repaired. Press ' + $('#mod').textContent + '+Z to undo.' : 'Repaired', 3200);
   }
   function copyText(text, label, fallbackEl) {
     if (!text) { say('Nothing to copy yet'); return; }
@@ -353,6 +417,8 @@
     run('format');
   }
   $('#btn-sample').addEventListener('click', loadSample);
+  if (repairJSON) $('#btn-repair').addEventListener('click', repair);
+  else $('#btn-repair').hidden = true;
   $('#btn-clear').addEventListener('click', () => {
     input.value = ''; isSample = false; $('#sample-badge').hidden = true;
     store.set('brace:draft', ''); run(); input.focus();
