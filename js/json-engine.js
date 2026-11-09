@@ -27,6 +27,14 @@ export function stringifyJson(value, indent) {
 }
 
 /**
+ * Minifies the data and wraps it in one JSON string, with quotes and backslashes escaped,
+ * ready to paste into code, a config value or a request body: {"a":1} becomes "{\"a\":1}".
+ */
+export function stringifyAsEscapedString(value) {
+  return JSON.stringify(stringifyJson(value));
+}
+
+/**
  * Parses the text and, when it is invalid, explains why.
  * @returns {{ data: unknown, error: null } | { data: null, error: { position: number, message: string, repairable: boolean } }}
  */

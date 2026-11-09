@@ -2,7 +2,7 @@
  * Brace JSON Formatter: entry point.
  * Connects the page controls to the JSON tools and keeps the app's small state.
  */
-import { readJson, stringifyJson, sortKeysDeep, repairJson, canRepair } from './json-engine.js';
+import { readJson, stringifyJson, stringifyAsEscapedString, sortKeysDeep, repairJson, canRepair } from './json-engine.js';
 import { getLineAndColumn } from './syntax-checker.js';
 import { createResultPanel } from './result-panel.js';
 import { expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-view.js';
@@ -15,6 +15,12 @@ const TYPING_DELAY_MS = 180;
 const MAX_SAVED_DRAFT_LENGTH = 500_000; // characters; larger inputs are not remembered
 const LINES_SHOWN_ABOVE_ERROR = 3;
 const BYTE_ORDER_MARK = /^﻿/;
+
+const COPY_MESSAGES = {
+  format: 'Copied formatted JSON',
+  minify: 'Copied minified JSON',
+  stringify: 'Copied as an escaped string',
+};
 
 const SAMPLE_JSON = '{"order":{"id":"ORD-20419","placedAt":"2026-11-08T09:41:27Z","status":"shipped","customer":{"name":"Mara Lindqvist","email":"mara@example.com","loyaltyTier":"gold"},"items":[{"sku":"KB-7720","title":"Mechanical keyboard, 75% layout","qty":1,"unitPrice":129.0},{"sku":"CB-0031","title":"Braided USB-C cable, 2 m","qty":2,"unitPrice":14.5}],"shipping":{"carrier":"DHL","tracking":"JD014600006281990","address":{"line1":"Sveavägen 44","city":"Stockholm","postcode":"111 34","country":"SE"}},"totals":{"subtotal":158.0,"shipping":0,"tax":39.5,"currency":"EUR"},"giftWrap":false,"notes":null}}';
 
@@ -29,6 +35,7 @@ const elements = {
   sortKeysCheckbox: getElement('sort-keys-checkbox'),
   formatButton: getElement('format-button'),
   minifyButton: getElement('minify-button'),
+  stringifyButton: getElement('stringify-button'),
   sampleButton: getElement('sample-button'),
   repairButton: getElement('repair-button'),
   clearButton: getElement('clear-button'),
@@ -52,7 +59,7 @@ const elements = {
 };
 
 const state = {
-  mode: 'format',      // 'format' or 'minify'
+  mode: 'format',      // 'format', 'minify' or 'stringify'
   output: '',          // the latest valid result, used by Copy
   errorLocation: null, // { position, line } of the current error, used by "Show in input"
 };
@@ -89,10 +96,15 @@ function updateResult(newMode) {
     return;
   }
 
-  const isMinified = state.mode === 'minify';
   const orderedData = elements.sortKeysCheckbox.checked ? sortKeysDeep(data) : data;
-  state.output = isMinified ? stringifyJson(orderedData) : stringifyJson(orderedData, getIndent());
-  resultPanel.showResult({ inputText: text, outputText: state.output, data: orderedData, isMinified });
+  state.output = buildOutput(orderedData);
+  resultPanel.showResult({ inputText: text, outputText: state.output, data: orderedData, mode: state.mode });
+}
+
+function buildOutput(data) {
+  if (state.mode === 'minify') return stringifyJson(data);
+  if (state.mode === 'stringify') return stringifyAsEscapedString(data);
+  return stringifyJson(data, getIndent());
 }
 
 function showErrorInInput() {
@@ -233,7 +245,7 @@ function expandWholeTree() {
 }
 
 function copyOutput() {
-  const message = state.mode === 'minify' ? 'Copied minified JSON' : 'Copied formatted JSON';
+  const message = COPY_MESSAGES[state.mode];
   copyToClipboard(state.output, message, elements.codeElement);
 }
 
@@ -287,6 +299,7 @@ function bindEvents() {
   elements.input.addEventListener('input', handleTyping);
   elements.formatButton.addEventListener('click', () => updateResult('format'));
   elements.minifyButton.addEventListener('click', () => updateResult('minify'));
+  elements.stringifyButton.addEventListener('click', () => updateResult('stringify'));
 
   elements.indentSelect.addEventListener('change', () => {
     saveSetting('indent', elements.indentSelect.value);

@@ -21,6 +21,7 @@ There are dozens of online JSON formatters. Brace makes three promises:
 ## Features
 
 - Format with 2 spaces, 4 spaces or tabs, or minify to one line
+- **Stringify**: turn the JSON into one escaped string (`{"a":1}` becomes `"{\"a\":1}"`), ready to paste into code, an environment variable or a request body
 - Optional key sorting
 - Validation with the exact line and column of each error, and a plain explanation
 - **Repair**: fixes trailing commas, single quotes, comments, unquoted keys, missing commas, Python-style `True`/`None` and more (undo with `Ctrl/⌘ + Z`)

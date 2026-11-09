@@ -11,6 +11,12 @@ import { renderTree } from './tree-view.js';
 // How many characters of the error's line to show around the error.
 const SNIPPET_WIDTH = 90;
 
+const STATUS_LABELS = {
+  format: 'Valid JSON',
+  minify: 'Valid · minified',
+  stringify: 'Valid · stringified',
+};
+
 /**
  * @param elements the DOM elements this panel draws into
  * @param actions  callbacks for the error card buttons: { onRepair, onShowInInput }
@@ -63,12 +69,14 @@ export function createResultPanel(elements, actions) {
     return { position: error.position, line };
   }
 
-  function showResult({ inputText, outputText, data, isMinified }) {
+  /** @param {'format' | 'minify' | 'stringify'} mode how the output was made */
+  function showResult({ inputText, outputText, data, mode }) {
+    const isSingleLine = mode !== 'format';
     textView.replaceChildren(codeElement);
-    renderHighlightedCode(codeElement, outputText, { wrapLines: isMinified });
+    renderHighlightedCode(codeElement, outputText, { wrapLines: isSingleLine });
     renderTree(treeRoot, data);
     selectedPath.textContent = '$';
-    setStatus('valid', isMinified ? 'Valid · minified' : 'Valid JSON');
+    setStatus('valid', STATUS_LABELS[mode]);
     stats.innerHTML = buildStatsHtml(inputText, outputText, describeStructure(data));
   }
 

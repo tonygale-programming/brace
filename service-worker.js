@@ -6,7 +6,7 @@
  * Each release gets its own cache, and older caches are deleted when it takes over.
  */
 
-const RELEASE = '2026-11-09.4';
+const RELEASE = '2026-11-09.5';
 const CACHE_PREFIX = 'brace-';
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const PAGE_URL = './';
