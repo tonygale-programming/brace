@@ -3,6 +3,10 @@
  *
  * Layout: a header with the toolbar, two panes side by side (input | result),
  * and a status bar below. On narrow screens the panes stack into one column.
+ *
+ * Sizing rule: every gap, padding and margin uses a --space-* token, and every
+ * other size (heights, widths, radii, line heights of code) is a multiple of 4px.
+ * The only exceptions are 1px borders and font sizes.
  */
 
 /* ---------- Theme ----------
@@ -43,11 +47,25 @@
   --token-null: light-dark(#858b97, #7f889a);
   --token-punctuation: light-dark(#6b7384, #8b94a5);
 
-  /* Type and shape */
+  /* Spacing scale: the only values used for gaps, paddings and margins */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  /* Sizes */
+  --control-height: 32px; /* buttons, dropdowns and switches */
+  --code-line-height: 20px;
+  --radius: 8px;
+  --radius-small: 4px;
+
+  /* Type */
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --radius: 8px;
-  --radius-small: 6px;
 }
 
 :root[data-theme="light"] {
@@ -81,12 +99,12 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-16);
   max-width: 1440px;
   margin: 0 auto;
-  padding-block: 18px 28px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: var(--space-16) var(--space-24);
+  padding-left: max(var(--space-16), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-16), env(safe-area-inset-right, 0px));
 }
 
 /* ---------- Header and toolbar ---------- */
@@ -96,13 +114,13 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 20px;
+  gap: var(--space-12) var(--space-20);
 }
 
 .brand {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: var(--space-12);
   min-width: 0;
 }
 
@@ -129,20 +147,20 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 /* Buttons that belong together and should wrap as one unit */
 .button-group {
   display: flex;
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 .select-label,
 .checkbox-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-8);
   font-size: 13px;
 }
 
@@ -156,23 +174,23 @@ body {
 }
 
 .checkbox-label input {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   margin: 0;
   accent-color: var(--accent);
 }
 
 .separator {
   width: 1px;
-  height: 22px;
+  height: 24px;
   background: var(--border);
 }
 
 kbd {
-  padding: 1px 5px;
+  padding: var(--space-2) var(--space-4);
   border: 1px solid var(--border);
   border-bottom-width: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   background: var(--surface-sunken);
   color: var(--text-muted);
   font: 500 11px var(--font-code);
@@ -183,9 +201,11 @@ kbd {
 button,
 select,
 .file-button {
-  padding: 8px 11px;
+  box-sizing: border-box;
+  height: var(--control-height);
+  padding: 0 var(--space-12);
   border: 1px solid var(--border);
-  border-radius: var(--radius-small);
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font: 500 13px/1 var(--font-ui);
@@ -196,7 +216,7 @@ select,
    so it is hidden and .select-control draws a chevron with a fixed gap instead. */
 select {
   appearance: none;
-  padding-right: 32px;
+  padding-right: var(--space-32);
 }
 
 .select-control {
@@ -208,12 +228,13 @@ select {
   content: "";
   position: absolute;
   top: 50%;
-  right: 13px;
-  width: 6px;
-  height: 6px;
+  right: var(--space-12);
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
   border-right: 1.5px solid var(--text-muted);
   border-bottom: 1.5px solid var(--text-muted);
-  transform: translateY(-70%) rotate(45deg);
+  transform: translateY(-75%) rotate(45deg);
   pointer-events: none;
 }
 
@@ -231,7 +252,7 @@ input[type="checkbox"]:focus-visible,
 .file-button:focus-within,
 .tree-key:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: var(--space-2);
 }
 
 .primary {
@@ -246,7 +267,7 @@ input[type="checkbox"]:focus-visible,
 }
 
 .ghost {
-  padding-inline: 8px;
+  padding-inline: var(--space-8);
   border-color: transparent;
   background: transparent;
   color: var(--text-muted);
@@ -277,14 +298,14 @@ input[type="checkbox"]:focus-visible,
 .panes {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
+  gap: var(--space-16);
 }
 
 .pane {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: clamp(380px, calc(100vh - 190px), 900px);
+  height: clamp(384px, calc(100vh - 192px), 896px);
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -293,18 +314,16 @@ input[type="checkbox"]:focus-visible,
 
 .pane.is-dragging {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: 0 0 0 var(--space-4) var(--accent-soft);
 }
 
 .pane-header {
-  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  padding: 7px 8px 7px 14px;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
   border-bottom: 1px solid var(--border);
   background: var(--surface-sunken);
 }
@@ -312,7 +331,7 @@ input[type="checkbox"]:focus-visible,
 .pane-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-8);
   color: var(--text-muted);
   font-size: 11px;
   font-weight: 600;
@@ -324,11 +343,11 @@ input[type="checkbox"]:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-4);
 }
 
 .badge {
-  padding: 2px 8px;
+  padding: var(--space-2) var(--space-8);
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
@@ -343,12 +362,12 @@ textarea {
   width: 100%;
   min-height: 0;
   margin: 0;
-  padding: 12px 14px;
+  padding: var(--space-12) var(--space-16);
   overflow: auto;
   border: 0;
   background: transparent;
   color: var(--text);
-  font: 13px/1.6 var(--font-code);
+  font: 13px/var(--code-line-height) var(--font-code);
   white-space: pre;
   tab-size: 2;
   resize: none;
@@ -359,23 +378,26 @@ textarea::placeholder {
 }
 
 textarea:focus-visible {
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--space-2));
 }
 
 /* A row of buttons where one is chosen: the result tabs and the theme switch */
 .segmented-control {
+  box-sizing: border-box;
   display: flex;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--space-2);
+  height: var(--control-height);
+  padding: var(--space-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-small);
+  border-radius: var(--radius);
   background: var(--background);
 }
 
 .segmented-control button {
-  padding: 5px 12px;
+  height: 100%;
+  padding: 0 var(--space-12);
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   background: transparent;
   color: var(--text-muted);
 }
@@ -402,17 +424,18 @@ textarea:focus-visible {
 .code {
   min-width: max-content;
   margin: 0;
-  padding: 12px 14px 12px 0;
+  padding: var(--space-12) var(--space-16) var(--space-12) 0;
   color: var(--text);
-  font: 13px/1.6 var(--font-code);
+  font: 13px/var(--code-line-height) var(--font-code);
   tab-size: 4;
   counter-reset: line-number;
 }
 
+/* Each line leaves room on the left for its number: a 40px column plus a 16px gap */
 .code-line {
   position: relative;
   display: block;
-  padding-left: 4.2em;
+  padding-left: 56px;
   white-space: pre;
 }
 
@@ -421,7 +444,7 @@ textarea:focus-visible {
   counter-increment: line-number;
   position: absolute;
   left: 0;
-  width: 3.2em;
+  width: 40px;
   color: var(--text-faint);
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -440,7 +463,7 @@ textarea:focus-visible {
 
 /* Very large output is shown as plain text without line numbers */
 .code.is-plain {
-  padding-left: 14px;
+  padding-left: var(--space-16);
   white-space: pre;
 }
 
@@ -454,8 +477,8 @@ textarea:focus-visible {
 /* ---------- Tree ---------- */
 
 .tree {
-  padding: 10px 14px 16px;
-  font: 13px/1.7 var(--font-code);
+  padding: var(--space-12) var(--space-16) var(--space-16);
+  font: 13px/24px var(--font-code);
 }
 
 .tree summary {
@@ -468,10 +491,11 @@ textarea:focus-visible {
   display: none;
 }
 
+/* The open/closed arrow takes the same 16px that leaf rows indent by, so keys line up */
 .tree summary::before {
   content: "▸";
   display: inline-block;
-  width: 14px;
+  width: 16px;
   color: var(--text-faint);
   transition: transform 0.12s;
 }
@@ -481,18 +505,18 @@ textarea:focus-visible {
 }
 
 .tree-children {
-  margin-left: 5px;
-  padding-left: 18px;
+  margin-left: var(--space-4);
+  padding-left: var(--space-16);
   border-left: 1px dashed var(--border);
 }
 
 .tree-leaf {
-  padding-left: 14px;
+  padding-left: var(--space-16);
   white-space: nowrap;
 }
 
 .tree-key {
-  border-radius: 3px;
+  border-radius: var(--radius-small);
   color: var(--token-key);
   cursor: pointer;
 }
@@ -507,7 +531,7 @@ textarea:focus-visible {
 }
 
 .child-count {
-  margin: 0 6px;
+  margin: 0 var(--space-8);
   color: var(--text-faint);
   font-family: var(--font-ui);
   font-size: 12px;
@@ -516,9 +540,9 @@ textarea:focus-visible {
 .path-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-8);
   min-width: 0;
-  padding: 7px 14px;
+  padding: var(--space-8) var(--space-16);
   border-top: 1px solid var(--border);
   background: var(--surface-sunken);
   color: var(--text-muted);
@@ -538,7 +562,7 @@ textarea:focus-visible {
 .empty-message,
 .error-card {
   max-width: 60ch;
-  margin: 18px 16px;
+  margin: var(--space-16);
 }
 
 .empty-message {
@@ -554,8 +578,8 @@ textarea:focus-visible {
 .error-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: var(--space-12);
+  padding: var(--space-16);
   border: 1px solid var(--danger);
   border-radius: var(--radius);
   background: var(--danger-soft);
@@ -576,12 +600,12 @@ textarea:focus-visible {
 
 .error-card pre {
   margin: 0;
-  padding: 10px 12px;
+  padding: var(--space-8) var(--space-12);
   overflow-x: auto;
   border-radius: var(--radius-small);
   background: var(--surface);
   color: var(--text);
-  font: 12.5px/1.55 var(--font-code);
+  font: 12.5px/var(--code-line-height) var(--font-code);
 }
 
 .error-caret {
@@ -592,7 +616,7 @@ textarea:focus-visible {
 .error-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 /* ---------- Status bar ---------- */
@@ -601,17 +625,19 @@ textarea:focus-visible {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
-  min-height: 26px;
+  gap: var(--space-8) var(--space-16);
+  min-height: 24px;
   color: var(--text-muted);
   font-size: 13px;
 }
 
 .status-chip {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px 3px 8px;
+  gap: var(--space-8);
+  height: 24px;
+  padding: 0 var(--space-12) 0 var(--space-8);
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--background);
@@ -622,8 +648,8 @@ textarea:focus-visible {
 
 .status-chip::before {
   content: "";
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
 }
@@ -643,7 +669,7 @@ textarea:focus-visible {
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: var(--space-4) var(--space-16);
   font-variant-numeric: tabular-nums;
 }
 
@@ -655,7 +681,7 @@ textarea:focus-visible {
 .shortcut-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-4);
   margin-left: auto;
 }
 
@@ -664,16 +690,16 @@ textarea:focus-visible {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  padding: 8px 14px;
-  border-radius: var(--radius-small);
+  bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius);
   background: var(--text);
   color: var(--background);
   font-size: 13px;
   font-weight: 500;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 8px);
+  transform: translate(-50%, var(--space-8));
   transition: opacity 0.15s, transform 0.15s;
 }
 

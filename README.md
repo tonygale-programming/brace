@@ -77,6 +77,10 @@ The goal is code a person can read without running it.
 - **Return early** instead of nesting `if` blocks.
 - **CSS uses design tokens.** Every colour is a `--variable` in the Theme section at the top of `styles.css`,
   written once as `light-dark(<light>, <dark>)`, so both themes change in one place. One declaration per line.
+- **Spacing follows a 4px scale.** Gaps, paddings and margins use only the `--space-*` tokens
+  (2, 4, 8, 12, 16, 20, 24, 32px). Other sizes, such as heights, widths and radii, are multiples of 4px.
+  Buttons, dropdowns and switches all share `--control-height` (32px), so rows line up.
+  The only exceptions are 1px borders and font sizes.
 - **No build step.** Anything added must still run when the folder is served as plain files.
 
 Formatting rules for editors are in `.editorconfig`.
