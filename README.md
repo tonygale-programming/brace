@@ -18,20 +18,49 @@ Format, minify and validate JSON in your browser. Nothing is uploaded: all work 
 ## Project structure
 
 ```
-index.html   page markup
-styles.css   theme colours (light and dark), layout and syntax colours
-app.js       parsing, error locating, formatting, tree view and controls
+index.html              page markup
+styles.css              theme colours (light and dark), layout and syntax colours
+js/
+  main.js               entry point: connects the controls to everything below
+  json-engine.js        parse, format, sort and repair JSON (wraps the two libraries)
+  syntax-checker.js     finds the first syntax error and explains it in plain words
+  result-panel.js       draws the result pane: empty state, error card or output
+  highlighter.js        colours formatted JSON and adds line numbers
+  tree-view.js          the collapsible tree and key paths
+  notifications.js      toast messages and copying to the clipboard
+  storage.js            remembers settings and the last input in this browser
+  html.js               escapes text before it goes into HTML
 ```
 
 ## Run locally
 
-Serve the folder with any static server, then open http://localhost:8000:
+The app uses JavaScript modules, which browsers only load over HTTP. Serve the folder,
+then open http://localhost:8000:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Opening `index.html` directly from disk also works.
+Opening `index.html` directly from disk will show the page without any behaviour.
+
+## Code style
+
+The goal is code a person can read without running it.
+
+- **Full names, no abbreviations.** `position`, not `i`; `repairInput`, not `rep`; `.token-string`, not `.t-s`.
+  The only exception is a name the whole industry uses, like `id` or `html`.
+- **One job per file.** If a module starts doing two things, split it.
+- **Small functions that say what they do.** A function name is a verb phrase (`showError`, `getLineAndColumn`).
+  If you need a comment to explain *what* a block does, make it a function with that name instead.
+- **Comments explain *why*, not *what*.** For example, why the tree builds children lazily, or why
+  Repair uses `execCommand`.
+- **Named constants instead of magic numbers.** `TYPING_DELAY_MS`, not `180`.
+- **Return early** instead of nesting `if` blocks.
+- **CSS uses design tokens.** Every colour is a `--variable` in the Theme section at the top of `styles.css`,
+  so light and dark mode change in one place. One declaration per line.
+- **No build step.** Anything added must still run when the folder is served as plain files.
+
+Formatting rules for editors are in `.editorconfig`.
 
 ## Tech
 

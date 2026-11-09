@@ -1,91 +1,112 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Format, minify and validate JSON in your browser, with a tree view and exact error locations. Nothing is uploaded.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a85d00'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3E%7B%7D%3C/text%3E%3C/svg%3E">
-<title>Brace JSON Formatter</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Format, minify and validate JSON in your browser, with a tree view and exact error locations. Nothing is uploaded.">
+  <title>Brace JSON Formatter</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a85d00'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3E%7B%7D%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="brand">
-      <h1><b>{</b>brace<b>}</b></h1>
-      <p>Format, validate and explore JSON. Runs entirely in your browser.</p>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <h1><b>{</b>brace<b>}</b></h1>
+        <p>Format, validate and explore JSON. Runs entirely in your browser.</p>
+      </div>
+
+      <div class="toolbar" role="toolbar" aria-label="Formatting options">
+        <label class="select-label" for="indent-select">
+          Indent
+          <select id="indent-select">
+            <option value="2">2 spaces</option>
+            <option value="4">4 spaces</option>
+            <option value="tab">Tabs</option>
+          </select>
+        </label>
+        <label class="checkbox-label" for="sort-keys-checkbox">
+          <input type="checkbox" id="sort-keys-checkbox">
+          Sort keys
+        </label>
+        <span class="separator" aria-hidden="true"></span>
+        <button type="button" class="primary" id="format-button">Format</button>
+        <button type="button" id="minify-button">Minify</button>
+      </div>
+    </header>
+
+    <main class="panes">
+      <section class="pane" id="input-pane" aria-label="Input">
+        <div class="pane-header">
+          <div class="pane-title">
+            Input
+            <span class="badge" id="sample-badge" hidden>Example data</span>
+          </div>
+          <div class="pane-actions">
+            <label class="file-button ghost">
+              Open file
+              <input type="file" id="file-input" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
+            </label>
+            <button type="button" class="ghost" id="sample-button">Sample</button>
+            <button type="button" class="ghost" id="repair-button"
+              title="Fix trailing commas, single quotes, comments, missing quotes and more">Repair</button>
+            <button type="button" class="ghost" id="clear-button">Clear</button>
+          </div>
+        </div>
+        <textarea id="json-input" spellcheck="false" autocomplete="off" autocapitalize="off"
+          aria-label="JSON input" placeholder="Paste JSON here, or drop a .json file"></textarea>
+      </section>
+
+      <section class="pane" aria-label="Result">
+        <div class="pane-header">
+          <div class="tabs" role="tablist" aria-label="Result view">
+            <button type="button" role="tab" id="text-tab" aria-selected="true" aria-controls="text-view">Text</button>
+            <button type="button" role="tab" id="tree-tab" aria-selected="false" aria-controls="tree-view">Tree</button>
+          </div>
+          <div class="pane-actions">
+            <span id="tree-actions" hidden>
+              <button type="button" class="ghost" id="expand-button">Expand all</button>
+              <button type="button" class="ghost" id="collapse-button">Collapse</button>
+            </span>
+            <button type="button" id="copy-button">Copy</button>
+          </div>
+        </div>
+
+        <div class="result-view" id="text-view" role="tabpanel" aria-labelledby="text-tab">
+          <pre class="code" id="formatted-code"></pre>
+        </div>
+        <div class="result-view" id="tree-view" role="tabpanel" aria-labelledby="tree-tab" hidden>
+          <div class="tree" id="tree-root"></div>
+        </div>
+
+        <div class="path-bar" id="path-bar" hidden>
+          <span>Path</span>
+          <code id="selected-path">$</code>
+          <button type="button" class="ghost" id="copy-path-button">Copy path</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="status-bar" aria-live="polite">
+      <span class="status-chip" id="status-chip">Waiting for input</span>
+      <span class="stats" id="stats"></span>
+      <span class="shortcut-hint"><kbd id="modifier-key">Ctrl</kbd><kbd>Enter</kbd> format</span>
     </div>
-    <div class="toolbar" role="toolbar" aria-label="Formatting options">
-      <label class="field" for="indent">Indent
-        <select id="indent">
-          <option value="2">2 spaces</option>
-          <option value="4">4 spaces</option>
-          <option value="tab">Tabs</option>
-        </select>
-      </label>
-      <label class="check" for="sort"><input type="checkbox" id="sort"> Sort keys</label>
-      <span class="sep" aria-hidden="true"></span>
-      <button class="primary" id="btn-format" type="button">Format</button>
-      <button id="btn-minify" type="button">Minify</button>
-    </div>
-  </header>
-
-  <main class="panes">
-    <section class="pane" id="in-pane" aria-label="Input">
-      <div class="pane-head">
-        <div class="pane-title">Input <span class="badge" id="sample-badge" hidden>Example data</span></div>
-        <div class="pane-actions">
-          <label class="filebtn ghost">Open file
-            <input type="file" id="file" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
-          </label>
-          <button class="ghost" id="btn-sample" type="button">Sample</button>
-          <button class="ghost" id="btn-repair" type="button" title="Fix trailing commas, single quotes, comments, missing quotes and more">Repair</button>
-          <button class="ghost" id="btn-clear" type="button">Clear</button>
-        </div>
-      </div>
-      <textarea id="input" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="JSON input"
-        placeholder="Paste JSON here, or drop a .json file"></textarea>
-    </section>
-
-    <section class="pane" aria-label="Result">
-      <div class="pane-head">
-        <div class="tabs" role="tablist" aria-label="Result view">
-          <button role="tab" id="tab-text" aria-selected="true" aria-controls="view-text" type="button">Text</button>
-          <button role="tab" id="tab-tree" aria-selected="false" aria-controls="view-tree" type="button">Tree</button>
-        </div>
-        <div class="pane-actions">
-          <span id="tree-actions" hidden>
-            <button class="ghost" id="btn-expand" type="button">Expand all</button>
-            <button class="ghost" id="btn-collapse" type="button">Collapse</button>
-          </span>
-          <button id="btn-copy" type="button">Copy</button>
-        </div>
-      </div>
-      <div class="view" id="view-text" role="tabpanel" aria-labelledby="tab-text"><pre class="code" id="code"></pre></div>
-      <div class="view" id="view-tree" role="tabpanel" aria-labelledby="tab-tree" hidden><div class="tree" id="tree"></div></div>
-      <div class="pathbar" id="pathbar" hidden>
-        <span>Path</span><code id="path">$</code>
-        <button class="ghost" id="btn-path" type="button">Copy path</button>
-      </div>
-    </section>
-  </main>
-
-  <div class="status" aria-live="polite">
-    <span class="chip" id="chip">Waiting for input</span>
-    <span class="stats" id="stats"></span>
-    <span class="hint"><kbd id="mod">Ctrl</kbd><kbd>Enter</kbd> format</span>
   </div>
-</div>
-<div class="toast" id="toast" role="status"></div>
 
-<!-- lossless-json: keeps numbers exact. jsonrepair: fixes broken JSON. Both pinned with integrity hashes. -->
-<script src="https://cdn.jsdelivr.net/npm/lossless-json@4.3.3/lib/umd/lossless-json.js"
-  integrity="sha384-WePis4DZsGmbLSh7jVUfBh/a94MXtwlbHPEXxp1bW6ta6shOIfrFw2vG2bTRVlGc" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsonrepair@3.15.0/lib/umd/jsonrepair.min.js"
-  integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG" crossorigin="anonymous"></script>
-<script src="app.js"></script>
+  <div class="toast" id="toast" role="status"></div>
+
+  <!-- Libraries, pinned to exact versions with integrity hashes.
+       lossless-json keeps numbers exact; jsonrepair powers the Repair button. -->
+  <script src="https://cdn.jsdelivr.net/npm/lossless-json@4.3.3/lib/umd/lossless-json.js"
+    integrity="sha384-WePis4DZsGmbLSh7jVUfBh/a94MXtwlbHPEXxp1bW6ta6shOIfrFw2vG2bTRVlGc" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsonrepair@3.15.0/lib/umd/jsonrepair.min.js"
+    integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG" crossorigin="anonymous"></script>
+
+  <!-- App code. Modules run after the page and the libraries above have loaded. -->
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
