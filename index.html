@@ -3,8 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Format, minify and validate JSON in your browser, with a tree view and exact error locations. Nothing is uploaded.">
+  <!-- Security policy: the page may only load its own files, and it may not send data anywhere.
+       connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
+       the browser. The sha256 values allow exactly the two inline scripts below;
+       scripts/release.py recalculates them, so never edit those scripts without running it. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-4Zao1dZ1/C2dUFYIipR24dl7Owi/gSzMnbUi/7fTwQM='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+
   <title>Brace JSON Formatter</title>
+  <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
+  <link rel="canonical" href="https://tonygale-programming.github.io/brace/">
+
+  <!-- Link previews in chats and social networks -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Brace JSON Formatter">
+  <meta property="og:description" content="Format, validate and repair JSON. Private: nothing you paste leaves your browser.">
+  <meta property="og:url" content="https://tonygale-programming.github.io/brace/">
+  <meta property="og:image" content="https://tonygale-programming.github.io/brace/icons/preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Icons and installing as an app -->
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#f1f3f6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1217" media="(prefers-color-scheme: dark)">
+
   <script>
     // Apply a saved Light or Dark choice before the page draws, so it never flashes
     // the wrong colours. Uses the same storage key as js/theme.js.
@@ -17,26 +42,24 @@
       // Storage is blocked: the page follows the system setting.
     }
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23a85d00'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3E%7B%7D%3C/text%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
-       Bump all of them together when you release: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-09.3">
+       Run scripts/release.py before pushing: see "Releasing" in the README. -->
+  <link rel="stylesheet" href="styles.css?v=2026-11-09.4">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-09.3",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-09.3",
-        "./js/result-panel.js": "./js/result-panel.js?v=2026-11-09.3",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-09.3",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-09.3",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-09.3",
-        "./js/storage.js": "./js/storage.js?v=2026-11-09.3",
-        "./js/html.js": "./js/html.js?v=2026-11-09.3",
-        "./js/theme.js": "./js/theme.js?v=2026-11-09.3"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-09.4",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-09.4",
+        "./js/result-panel.js": "./js/result-panel.js?v=2026-11-09.4",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-09.4",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-09.4",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-09.4",
+        "./js/storage.js": "./js/storage.js?v=2026-11-09.4",
+        "./js/html.js": "./js/html.js?v=2026-11-09.4",
+        "./js/theme.js": "./js/theme.js?v=2026-11-09.4",
+        "./js/offline.js": "./js/offline.js?v=2026-11-09.4"
       }
     }
   </script>
@@ -46,7 +69,11 @@
     <header class="app-header">
       <div class="brand">
         <h1><b>{</b>brace<b>}</b></h1>
-        <p>Format, validate and explore JSON. Runs entirely in your browser.</p>
+        <p>
+          Format, validate and repair JSON.
+          <span class="privacy-note">Private: nothing you paste leaves this browser.</span>
+          <a href="https://github.com/tonygale-programming/brace#privacy" target="_blank" rel="noopener">How?</a>
+        </p>
       </div>
 
       <div class="toolbar" role="toolbar" aria-label="Formatting options">
@@ -139,14 +166,14 @@
 
   <div class="toast" id="toast" role="status"></div>
 
-  <!-- Libraries, pinned to exact versions with integrity hashes.
+  <!-- Libraries, served from this site and pinned with integrity hashes.
        lossless-json keeps numbers exact; jsonrepair powers the Repair button. -->
-  <script src="https://cdn.jsdelivr.net/npm/lossless-json@4.3.3/lib/umd/lossless-json.js"
-    integrity="sha384-WePis4DZsGmbLSh7jVUfBh/a94MXtwlbHPEXxp1bW6ta6shOIfrFw2vG2bTRVlGc" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsonrepair@3.15.0/lib/umd/jsonrepair.min.js"
-    integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG" crossorigin="anonymous"></script>
+  <script src="vendor/lossless-json-4.3.3.js"
+    integrity="sha384-WePis4DZsGmbLSh7jVUfBh/a94MXtwlbHPEXxp1bW6ta6shOIfrFw2vG2bTRVlGc"></script>
+  <script src="vendor/jsonrepair-3.15.0.min.js"
+    integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-09.3"></script>
+  <script type="module" src="js/main.js?v=2026-11-09.4"></script>
 </body>
 </html>

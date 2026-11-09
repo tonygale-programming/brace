@@ -1,6 +1,22 @@
 # {brace} JSON Formatter
 
-Format, minify and validate JSON in your browser. Nothing is uploaded: all work happens on your device.
+Format, validate and repair JSON in your browser. **Private: nothing you paste leaves your device.**
+
+**Open it:** https://tonygale-programming.github.io/brace/
+
+## Why Brace
+
+There are dozens of online JSON formatters. Brace makes three promises:
+
+1. **Safe for secrets.** JSON often contains passwords, tokens and customer data. In November 2025,
+   researchers found that two popular formatting sites had exposed more than 80,000 pasted documents
+   through their "save and share" links, including cloud keys and bank credentials. Brace has no
+   server, no saving and no sharing, and its security policy stops the page from sending data anywhere.
+   You can check this yourself (see [Privacy](#privacy)).
+2. **Instant.** No ads, no cookie banner, no account. Paste, and the result is already there.
+   After the first visit it works offline, and you can install it as an app.
+3. **Fixes messy, real-world JSON.** Repairs broken JSON, keeps big numbers exact, catches duplicate
+   keys, and explains every error in plain words.
 
 ## Features
 
@@ -13,13 +29,37 @@ Format, minify and validate JSON in your browser. Nothing is uploaded: all work 
 - Collapsible tree view; click a key to get its path (for example `$.order.items[0].sku`)
 - Open or drag in a `.json` file, copy the result
 - Light and dark themes: **Auto** follows your system setting, or pick **Light** or **Dark** (remembered in your browser)
+- **Works offline** and can be installed as an app (in Chrome or Edge: the install icon in the address bar)
 - Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies
+
+## Privacy
+
+Everything happens in your browser. There is no server code, no analytics, no ads and no cookies.
+
+The page enforces this with a **Content Security Policy** (the first `<meta>` tag in `index.html`):
+
+| Rule | What it means |
+|---|---|
+| `default-src 'none'` | Nothing may load unless a rule below allows it |
+| `script-src 'self' 'sha256-…'` | Only this site's own scripts, plus the two inline scripts with exactly these contents |
+| `style-src`, `font-src`, `img-src 'self'` | Styles, fonts and images come only from this site |
+| `connect-src 'none'` | **The page cannot send network requests at all**: no `fetch`, XHR, WebSocket or beacon |
+| `form-action 'none'` | No form can submit data anywhere |
+
+The two libraries and the fonts are served from this site too, so opening Brace contacts no one else.
+Your settings and last input are kept only in your browser's local storage.
+
+**Check it yourself:** open the browser's developer tools, go to the **Network** tab, reload, and use
+Brace. Every request goes to this site only, and nothing new is requested while you paste or format.
+In the **Console**, `fetch('https://example.com')` is refused by the policy.
 
 ## Project structure
 
 ```
-index.html              page markup
-styles.css              theme colours (light and dark), layout and syntax colours
+index.html              page markup and the security policy
+styles.css              fonts, theme colours (light and dark), spacing scale and layout
+service-worker.js       keeps a copy of every file so Brace works offline
+manifest.webmanifest    lets browsers install Brace as an app
 js/
   main.js               entry point: connects the controls to everything below
   json-engine.js        parse, format, sort and repair JSON (wraps the two libraries)
@@ -30,7 +70,12 @@ js/
   notifications.js      toast messages and copying to the clipboard
   storage.js            remembers settings and the last input in this browser
   theme.js              the Auto / Light / Dark switch
+  offline.js            registers the service worker
   html.js               escapes text before it goes into HTML
+vendor/                 lossless-json and jsonrepair, copied unchanged from npm
+fonts/                  IBM Plex Sans and Mono (Latin), with their license
+icons/                  app icons and the link preview image
+scripts/release.py      prepares a release (see Releasing)
 ```
 
 ## Run locally
@@ -46,21 +91,23 @@ Opening `index.html` directly from disk will show the page without any behaviour
 
 ## Releasing
 
-GitHub Pages lets browsers reuse a file for 10 minutes. If the HTML changes but a visitor's
-browser still has the old `styles.css` or script, the page breaks. To prevent that, every file
-the page loads ends in `?v=<release>`, and a new release changes that value everywhere so
-browsers fetch fresh copies.
-
-Before pushing changes to `styles.css` or anything in `js/`, set a new release value
-(for example today's date plus a counter) in every place at once:
+Run this before every push that changes the site:
 
 ```bash
-sed -i '' -E 's/\?v=[0-9.-]+/?v=2026-11-10.1/g' index.html
+python3 scripts/release.py
 ```
 
-(On Linux, use `sed -i` without the `''`.)
+Why it is needed: GitHub Pages lets browsers reuse files for 10 minutes, and the offline service worker
+keeps them until the next release. So every file URL carries a release version (`?v=2026-11-10.1`), and
+each release needs a new one. The script:
 
-New modules in `js/` also need an entry in the import map in `index.html`.
+1. sets a new version (today's date plus a counter) in `index.html` and `service-worker.js`,
+2. recalculates the security policy hashes for the inline scripts, because the import map
+   contains the version (a wrong hash would stop the page from running),
+3. checks that every module in `js/` is listed in the import map and in the service worker.
+
+When you add a module to `js/`, add it to the import map in `index.html` and to `VERSIONED_FILES`
+in `service-worker.js`; the script stops with a clear message if you forget.
 
 ## Code style
 
@@ -81,22 +128,29 @@ The goal is code a person can read without running it.
   (2, 4, 8, 12, 16, 20, 24, 32px). Other sizes, such as heights, widths and radii, are multiples of 4px.
   Buttons, dropdowns and switches all share `--control-height` (32px), so rows line up.
   The only exceptions are 1px borders and font sizes.
+- **Nothing from other sites.** Every file the page needs lives in this repository, so the privacy
+  promise holds. The security policy enforces this.
 - **No build step.** Anything added must still run when the folder is served as plain files.
 
 Formatting rules for editors are in `.editorconfig`.
 
 ## Tech
 
-Plain HTML, CSS and JavaScript with no build step. Two small libraries load from jsDelivr, pinned to exact versions with integrity hashes:
+Plain HTML, CSS and JavaScript with no build step and no server. Two small libraries, copied into
+`vendor/` unchanged and checked with integrity hashes:
 
 | Library | Version | Used for |
 |---|---|---|
 | [lossless-json](https://github.com/josdejong/lossless-json) | 4.3.3 | Parsing and formatting without rounding numbers; duplicate key detection |
 | [jsonrepair](https://github.com/josdejong/jsonrepair) | 3.15.0 | The Repair button |
 
-If the CDN can't be reached, the page still works: it falls back to the browser's built-in JSON and hides Repair.
+If a library fails to load, the page still works: it falls back to the browser's built-in JSON and hides Repair.
 
-Fonts load from Google Fonts.
+Fonts: [IBM Plex](https://github.com/IBM/plex) Sans and Mono, under the SIL Open Font License (`fonts/OFL.txt`).
 
 Works in current Chrome, Edge, Firefox and Safari. The colour themes use CSS `light-dark()`, which needs
 browsers from 2024 or later (Chrome 123, Firefox 120, Safari 17.5).
+
+## License
+
+[MIT](LICENSE)

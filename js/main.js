@@ -9,6 +9,7 @@ import { expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-vie
 import { showToast, copyToClipboard, MODIFIER_KEY_LABEL, LONG_TOAST_MS } from './notifications.js';
 import { loadSetting, saveSetting } from './storage.js';
 import { getSavedTheme, applyTheme, chooseTheme } from './theme.js';
+import { enableOfflineUse } from './offline.js';
 
 const TYPING_DELAY_MS = 180;
 const MAX_SAVED_DRAFT_LENGTH = 500_000; // characters; larger inputs are not remembered
@@ -351,3 +352,4 @@ elements.modifierKey.textContent = MODIFIER_KEY_LABEL;
 bindEvents();
 restorePreferences();
 loadInitialInput();
+enableOfflineUse();
