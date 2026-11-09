@@ -152,6 +152,10 @@ Fonts: [IBM Plex](https://github.com/IBM/plex) Sans and Mono, under the SIL Open
 Works in current Chrome, Edge, Firefox and Safari. The colour themes use CSS `light-dark()`, which needs
 browsers from 2024 or later (Chrome 123, Firefox 120, Safari 17.5).
 
+## Roadmap
+
+Planned improvements, ideas, and the ideas we decided against: see [ROADMAP.md](ROADMAP.md).
+
 ## License
 
 [MIT](LICENSE)
