@@ -192,8 +192,29 @@ select,
   cursor: pointer;
 }
 
+/* The browser's own dropdown arrow sits in a different place in every browser,
+   so it is hidden and .select-control draws a chevron with a fixed gap instead. */
 select {
-  padding-right: 6px;
+  appearance: none;
+  padding-right: 32px;
+}
+
+.select-control {
+  position: relative;
+  display: inline-flex;
+}
+
+.select-control::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--text-muted);
+  border-bottom: 1.5px solid var(--text-muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
 }
 
 button:hover,

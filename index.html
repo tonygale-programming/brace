@@ -24,19 +24,19 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Bump all of them together when you release: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-09.1">
+  <link rel="stylesheet" href="styles.css?v=2026-11-09.2">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-09.1",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-09.1",
-        "./js/result-panel.js": "./js/result-panel.js?v=2026-11-09.1",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-09.1",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-09.1",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-09.1",
-        "./js/storage.js": "./js/storage.js?v=2026-11-09.1",
-        "./js/html.js": "./js/html.js?v=2026-11-09.1",
-        "./js/theme.js": "./js/theme.js?v=2026-11-09.1"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-09.2",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-09.2",
+        "./js/result-panel.js": "./js/result-panel.js?v=2026-11-09.2",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-09.2",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-09.2",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-09.2",
+        "./js/storage.js": "./js/storage.js?v=2026-11-09.2",
+        "./js/html.js": "./js/html.js?v=2026-11-09.2",
+        "./js/theme.js": "./js/theme.js?v=2026-11-09.2"
       }
     }
   </script>
@@ -52,11 +52,13 @@
       <div class="toolbar" role="toolbar" aria-label="Formatting options">
         <label class="select-label" for="indent-select">
           Indent
-          <select id="indent-select">
-            <option value="2">2 spaces</option>
-            <option value="4">4 spaces</option>
-            <option value="tab">Tabs</option>
-          </select>
+          <span class="select-control">
+            <select id="indent-select">
+              <option value="2">2 spaces</option>
+              <option value="4">4 spaces</option>
+              <option value="tab">Tabs</option>
+            </select>
+          </span>
         </label>
         <label class="checkbox-label" for="sort-keys-checkbox">
           <input type="checkbox" id="sort-keys-checkbox">
@@ -145,6 +147,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG" crossorigin="anonymous"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-09.1"></script>
+  <script type="module" src="js/main.js?v=2026-11-09.2"></script>
 </body>
 </html>
