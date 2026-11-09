@@ -5,36 +5,43 @@
  * and a status bar below. On narrow screens the panes stack into one column.
  */
 
-/* ---------- Theme ---------- */
+/* ---------- Theme ----------
+ * Each colour is written once as light-dark(<light value>, <dark value>).
+ * The browser picks one based on color-scheme:
+ *   no data-theme      → follows the system setting (Auto)
+ *   data-theme="light" → always light
+ *   data-theme="dark"  → always dark
+ * js/theme.js sets data-theme on <html> when the visitor uses the theme switch.
+ */
 
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
 
   /* Surfaces and text */
-  --background: #f1f3f6;
-  --surface: #ffffff;
-  --surface-sunken: #f7f8fa;
-  --text: #191d26;
-  --text-muted: #576073;
-  --text-faint: #9aa2b1;
-  --border: #d9dde5;
+  --background: light-dark(#f1f3f6, #0f1217);
+  --surface: light-dark(#ffffff, #161a21);
+  --surface-sunken: light-dark(#f7f8fa, #12161c);
+  --text: light-dark(#191d26, #e4e8ef);
+  --text-muted: light-dark(#576073, #98a1b3);
+  --text-faint: light-dark(#9aa2b1, #5f6879);
+  --border: light-dark(#d9dde5, #2a303b);
 
   /* Brand and states */
-  --accent: #a85d00;
-  --accent-text: #ffffff;
-  --accent-soft: #fbefdc;
-  --success: #1b7444;
-  --success-soft: #e1f2e8;
-  --danger: #b8322a;
-  --danger-soft: #fbe5e3;
+  --accent: light-dark(#a85d00, #f2b24a);
+  --accent-text: light-dark(#ffffff, #1d1405);
+  --accent-soft: light-dark(#fbefdc, #3a2a10);
+  --success: light-dark(#1b7444, #6fd49b);
+  --success-soft: light-dark(#e1f2e8, #15301f);
+  --danger: light-dark(#b8322a, #ff8077);
+  --danger-soft: light-dark(#fbe5e3, #3a1a18);
 
   /* JSON syntax colours */
-  --token-key: #1f4fa8;
-  --token-string: #1b7444;
-  --token-number: #7a3fb0;
-  --token-boolean: #b0521a;
-  --token-null: #858b97;
-  --token-punctuation: #6b7384;
+  --token-key: light-dark(#1f4fa8, #8fb4ff);
+  --token-string: light-dark(#1b7444, #8fd6a5);
+  --token-number: light-dark(#7a3fb0, #d1a6ff);
+  --token-boolean: light-dark(#b0521a, #f2a66b);
+  --token-null: light-dark(#858b97, #7f889a);
+  --token-punctuation: light-dark(#6b7384, #8b94a5);
 
   /* Type and shape */
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -43,33 +50,12 @@
   --radius-small: 6px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+:root[data-theme="light"] {
+  color-scheme: light;
+}
 
-    --background: #0f1217;
-    --surface: #161a21;
-    --surface-sunken: #12161c;
-    --text: #e4e8ef;
-    --text-muted: #98a1b3;
-    --text-faint: #5f6879;
-    --border: #2a303b;
-
-    --accent: #f2b24a;
-    --accent-text: #1d1405;
-    --accent-soft: #3a2a10;
-    --success: #6fd49b;
-    --success-soft: #15301f;
-    --danger: #ff8077;
-    --danger-soft: #3a1a18;
-
-    --token-key: #8fb4ff;
-    --token-string: #8fd6a5;
-    --token-number: #d1a6ff;
-    --token-boolean: #f2a66b;
-    --token-null: #7f889a;
-    --token-punctuation: #8b94a5;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 /* ---------- Base ---------- */
@@ -143,6 +129,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 8px;
+}
+
+/* Buttons that belong together and should wrap as one unit */
+.button-group {
+  display: flex;
   gap: 8px;
 }
 
@@ -349,7 +341,8 @@ textarea:focus-visible {
   outline-offset: -2px;
 }
 
-.tabs {
+/* A row of buttons where one is chosen: the result tabs and the theme switch */
+.segmented-control {
   display: flex;
   gap: 2px;
   padding: 2px;
@@ -358,7 +351,7 @@ textarea:focus-visible {
   background: var(--background);
 }
 
-.tabs button {
+.segmented-control button {
   padding: 5px 12px;
   border: 0;
   border-radius: 4px;
@@ -366,7 +359,12 @@ textarea:focus-visible {
   color: var(--text-muted);
 }
 
-.tabs button[aria-selected="true"] {
+.segmented-control button:hover {
+  color: var(--text);
+}
+
+.segmented-control button[aria-selected="true"],
+.segmented-control button[aria-pressed="true"] {
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);

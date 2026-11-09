@@ -8,6 +8,7 @@ import { createResultPanel } from './result-panel.js';
 import { expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-view.js';
 import { showToast, copyToClipboard, MODIFIER_KEY_LABEL, LONG_TOAST_MS } from './notifications.js';
 import { loadSetting, saveSetting } from './storage.js';
+import { getSavedTheme, applyTheme, chooseTheme } from './theme.js';
 
 const TYPING_DELAY_MS = 180;
 const MAX_SAVED_DRAFT_LENGTH = 500_000; // characters; larger inputs are not remembered
@@ -46,6 +47,7 @@ const elements = {
   statusChip: getElement('status-chip'),
   stats: getElement('stats'),
   modifierKey: getElement('modifier-key'),
+  themeButtons: document.querySelectorAll('[data-theme-choice]'),
 };
 
 const state = {
@@ -234,6 +236,20 @@ function copyOutput() {
   copyToClipboard(state.output, message, elements.codeElement);
 }
 
+/* ---------- Theme ---------- */
+
+function showChosenTheme(theme) {
+  for (const button of elements.themeButtons) {
+    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+  }
+}
+
+function handleThemeClick(event) {
+  const theme = event.currentTarget.dataset.themeChoice;
+  chooseTheme(theme);
+  showChosenTheme(theme);
+}
+
 /* ---------- Events ---------- */
 
 const isFileDrag = (event) => Boolean(event.dataTransfer?.types.includes('Files'));
@@ -303,12 +319,20 @@ function bindEvents() {
     copyToClipboard(elements.selectedPath.textContent, 'Copied path', elements.selectedPath);
   });
 
+  for (const button of elements.themeButtons) {
+    button.addEventListener('click', handleThemeClick);
+  }
+
   document.addEventListener('keydown', handleShortcut);
 }
 
 /* ---------- Start ---------- */
 
 function restorePreferences() {
+  const savedTheme = getSavedTheme();
+  applyTheme(savedTheme);
+  showChosenTheme(savedTheme);
+
   const savedIndent = loadSetting('indent');
   const indentChoices = [...elements.indentSelect.options].map((option) => option.value);
   if (indentChoices.includes(savedIndent)) elements.indentSelect.value = savedIndent;

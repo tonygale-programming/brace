@@ -12,7 +12,7 @@ Format, minify and validate JSON in your browser. Nothing is uploaded: all work 
 - Catches duplicate keys with conflicting values, which most tools accept silently
 - Collapsible tree view; click a key to get its path (for example `$.order.items[0].sku`)
 - Open or drag in a `.json` file, copy the result
-- Light and dark themes
+- Light and dark themes: **Auto** follows your system setting, or pick **Light** or **Dark** (remembered in your browser)
 - Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies
 
 ## Project structure
@@ -29,6 +29,7 @@ js/
   tree-view.js          the collapsible tree and key paths
   notifications.js      toast messages and copying to the clipboard
   storage.js            remembers settings and the last input in this browser
+  theme.js              the Auto / Light / Dark switch
   html.js               escapes text before it goes into HTML
 ```
 
@@ -42,6 +43,24 @@ python3 -m http.server 8000
 ```
 
 Opening `index.html` directly from disk will show the page without any behaviour.
+
+## Releasing
+
+GitHub Pages lets browsers reuse a file for 10 minutes. If the HTML changes but a visitor's
+browser still has the old `styles.css` or script, the page breaks. To prevent that, every file
+the page loads ends in `?v=<release>`, and a new release changes that value everywhere so
+browsers fetch fresh copies.
+
+Before pushing changes to `styles.css` or anything in `js/`, set a new release value
+(for example today's date plus a counter) in every place at once:
+
+```bash
+sed -i '' -E 's/\?v=[0-9.-]+/?v=2026-11-10.1/g' index.html
+```
+
+(On Linux, use `sed -i` without the `''`.)
+
+New modules in `js/` also need an entry in the import map in `index.html`.
 
 ## Code style
 
@@ -57,7 +76,7 @@ The goal is code a person can read without running it.
 - **Named constants instead of magic numbers.** `TYPING_DELAY_MS`, not `180`.
 - **Return early** instead of nesting `if` blocks.
 - **CSS uses design tokens.** Every colour is a `--variable` in the Theme section at the top of `styles.css`,
-  so light and dark mode change in one place. One declaration per line.
+  written once as `light-dark(<light>, <dark>)`, so both themes change in one place. One declaration per line.
 - **No build step.** Anything added must still run when the folder is served as plain files.
 
 Formatting rules for editors are in `.editorconfig`.
@@ -74,3 +93,6 @@ Plain HTML, CSS and JavaScript with no build step. Two small libraries load from
 If the CDN can't be reached, the page still works: it falls back to the browser's built-in JSON and hides Repair.
 
 Fonts load from Google Fonts.
+
+Works in current Chrome, Edge, Firefox and Safari. The colour themes use CSS `light-dark()`, which needs
+browsers from 2024 or later (Chrome 123, Firefox 120, Safari 17.5).
