@@ -1,12 +1,10 @@
 /**
  * Short messages at the bottom of the screen, and copying to the clipboard.
  */
+import { describeKeys } from './keyboard.js';
 
 export const SHORT_TOAST_MS = 1600;
 export const LONG_TOAST_MS = 4000; // long enough to reach the Undo button
-
-const isApplePlatform = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-export const MODIFIER_KEY_LABEL = isApplePlatform ? '⌘' : 'Ctrl';
 
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
@@ -68,5 +66,5 @@ function selectForManualCopy(element) {
     selection.removeAllRanges();
     selection.addRange(range);
   }
-  showToast(`Selected. Press ${MODIFIER_KEY_LABEL}+C to copy`);
+  showToast(`Selected. Press ${describeKeys({ command: true, key: 'C' })} to copy`);
 }

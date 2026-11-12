@@ -6,7 +6,7 @@
  * Each release gets its own cache, and older caches are deleted when it takes over.
  */
 
-const RELEASE = '2026-11-12.3';
+const RELEASE = '2026-11-13.1';
 const CACHE_PREFIX = 'brace-';
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const PAGE_URL = './';
@@ -24,6 +24,7 @@ const VERSIONED_FILES = [
   'js/highlighter.js',
   'js/tree-view.js',
   'js/notifications.js',
+  'js/keyboard.js',
   'js/storage.js',
   'js/html.js',
   'js/theme.js',

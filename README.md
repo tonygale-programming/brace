@@ -34,7 +34,7 @@ There are dozens of online JSON formatters. Brace makes three promises:
 - **Undo** button after Clear, Sample and Repair
 - Light and dark themes: a first visit follows your system setting; the theme button switches and remembers it
 - **Works offline** and can be installed as an app (in Chrome or Edge: the install icon in the address bar)
-- Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies, `?` lists them all
+- Keyboard shortcuts: `⇧⌥F` Format, `⇧⌥M` Minify, `⇧⌥S` Stringify, `⇧⌥R` Repair, `⇧⌥T` Text / Tree, `⌘O` Open, `⌘S` Download, `?` lists them all (`Shift+Alt` and `Ctrl` on Windows and Linux)
 
 ## Privacy
 
@@ -77,6 +77,7 @@ js/
   storage.js            remembers settings and the last input in this browser
   theme.js              the light / dark theme button
   download.js           saves the JSON as a file, made inside the browser
+  keyboard.js           keyboard shortcuts: one list drives the keys, the shortcuts dialog and tooltips
   offline.js            registers the service worker
   html.js               escapes text before it goes into HTML
 vendor/                 lossless-json and jsonrepair, copied unchanged from npm

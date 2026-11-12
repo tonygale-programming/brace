@@ -3,13 +3,29 @@
 What changed in Brace, day by day. Newest first. Each day lists what people using the site would notice,
 then changes behind the scenes. Release versions match the `?v=` value in `index.html`.
 
+## 13 November 2026
+
+Release `2026-11-13.1`.
+
+**New**
+- **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
+  `⇧⌥R` Repair, `⇧⌥T` Text / Tree, `⌘O` Open file, `⌘S` Download, `?` the list.
+  On Windows and Linux: `Shift+Alt` and `Ctrl`.
+- The shortcuts list is grouped (Change the JSON, File, View), and button tooltips name their shortcut.
+
+**Improved**
+- The focused Text · Tree pill shows only the yellow ring, without underlining the label.
+
+**Behind the scenes**
+- New `keyboard.js`: one list of shortcuts drives the keys, the list and the tooltips.
+
 ## 12 November 2026
 
 Releases `2026-11-12.2` and `2026-11-12.3`.
 
 **Polish after review** (`2026-11-12.3`)
 - Icons are 16px with a 1.5px line; buttons have 12px on the left, 8px between icon and label, 16px on the right.
-- Keyboard focus is a 1.5px yellow ring with a 1.5px gap around the control.
+- Keyboard focus is a 1.5px yellow ring with a 1.5px gap around the control (around the whole Text · Tree pill).
 - In dark mode the yellow is a deep olive (`#664C00`) with white text.
 - The status chip shows a small dot instead of an icon.
 - One **Expand all / Collapse all** button instead of two.

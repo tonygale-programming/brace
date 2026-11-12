@@ -24,6 +24,8 @@ Plain HTML, CSS and JavaScript modules, no build step, no server.
 - **Details:** 16px icons with a 1.5px line (Lucide stroke 2.25); buttons 12px left, 8px icon gap, 16px right;
   focus is a 1.5px yellow ring with a 1.5px gap; dark-mode yellow is `#664C00` with white text; the status chip
   uses a dot, not an icon; the logo is `{brace}` with Lucide's braces; no privacy line in the header (for now).
+- **Shortcuts** live in one list in `js/main.js` (`SHORTCUTS`). Use Shift+Option/Alt + letter; only use ⌘/Ctrl
+  for Open and Save. Never take ⌘T, ⌘N, ⌘W, ⌘M (can't be overridden) or ⌘F, ⌘R, ⌘C (people rely on them).
 - Keep it simple: "less is more". Prefer fewer controls and disabled states over extra screens or messages.
 
 ## Positioning (why decisions go the way they do)

@@ -13,7 +13,8 @@ import { createEditor } from './editor.js';
 import { createErrorCard } from './error-card.js';
 import { createStatusBar } from './status-bar.js';
 import { renderTree, expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-view.js';
-import { showToast, copyToClipboard, MODIFIER_KEY_LABEL, LONG_TOAST_MS } from './notifications.js';
+import { showToast, copyToClipboard, LONG_TOAST_MS } from './notifications.js';
+import { bindShortcuts, renderShortcutList } from './keyboard.js';
 import { saveTextAsFile } from './download.js';
 import { loadSetting, saveSetting } from './storage.js';
 import { toggleTheme } from './theme.js';
@@ -360,20 +361,37 @@ function bindFileDrop() {
   });
 }
 
-const isTypingInAField = (target) => target.matches('textarea, input, select');
-
-function handleShortcut(event) {
-  const isModifierPressed = event.metaKey || event.ctrlKey;
-  if (isModifierPressed && event.key === 'Enter') {
-    event.preventDefault();
-    applyAction(event.shiftKey ? 'minify' : 'format');
-    return;
-  }
-  if (event.key === '?' && !isTypingInAField(event.target)) {
-    event.preventDefault();
-    elements.shortcutsDialog.showModal();
-  }
+/** Presses a button the way a click would, so a shortcut does nothing while its button is disabled. */
+function press(button) {
+  if (!button.disabled) button.click();
 }
+
+function toggleView() {
+  if (!elements.treeTab.disabled) showView(state.view === 'tree' ? 'text' : 'tree');
+}
+
+/* The one list of shortcuts: it drives the keys, the shortcuts dialog and the button tooltips. */
+const SHORTCUTS = [
+  { group: 'Change the JSON', label: 'Format', button: elements.formatButton, run: () => press(elements.formatButton),
+    keys: [{ shift: true, option: true, key: 'F', code: 'KeyF' }, { command: true, key: 'Enter', code: 'Enter' }] },
+  { group: 'Change the JSON', label: 'Minify', button: elements.minifyButton, run: () => press(elements.minifyButton),
+    keys: [{ shift: true, option: true, key: 'M', code: 'KeyM' }] },
+  { group: 'Change the JSON', label: 'Stringify', button: elements.stringifyButton, run: () => press(elements.stringifyButton),
+    keys: [{ shift: true, option: true, key: 'S', code: 'KeyS' }] },
+  { group: 'Change the JSON', label: 'Repair', button: elements.repairButton, run: () => press(elements.repairButton),
+    keys: [{ shift: true, option: true, key: 'R', code: 'KeyR' }] },
+  { group: 'Change the JSON', label: 'Undo the last change',
+    keys: [{ command: true, key: 'Z' }] },
+  { group: 'File', label: 'Open file', run: () => elements.fileInput.click(),
+    keys: [{ command: true, key: 'O', code: 'KeyO' }] },
+  { group: 'File', label: 'Download', button: elements.downloadButton, run: () => press(elements.downloadButton),
+    keys: [{ command: true, key: 'S', code: 'KeyS' }] },
+  { group: 'View', label: 'Switch Text / Tree', run: toggleView,
+    keys: [{ shift: true, option: true, key: 'T', code: 'KeyT' }] },
+  { group: 'View', label: 'Show shortcuts', button: elements.shortcutsButton,
+    run: () => elements.shortcutsDialog.showModal(), notWhileTyping: true,
+    keys: [{ key: '?', character: '?' }] },
+];
 
 function bindEvents() {
   elements.input.addEventListener('input', handleTyping);
@@ -418,7 +436,8 @@ function bindEvents() {
   elements.shortcutsButton.addEventListener('click', () => elements.shortcutsDialog.showModal());
   elements.shortcutsCloseButton.addEventListener('click', () => elements.shortcutsDialog.close());
 
-  document.addEventListener('keydown', handleShortcut);
+  bindShortcuts(SHORTCUTS);
+  renderShortcutList(getElement('shortcut-groups'), SHORTCUTS);
 }
 
 /* ---------- Start ---------- */
@@ -437,7 +456,6 @@ function loadInitialText() {
   refresh();
 }
 
-for (const key of document.querySelectorAll('.modifier-key')) key.textContent = MODIFIER_KEY_LABEL;
 bindEvents();
 restorePreferences();
 loadInitialText();
