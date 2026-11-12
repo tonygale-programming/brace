@@ -5,7 +5,7 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Releases `2026-11-13.1` and `2026-11-13.2`.
+Releases `2026-11-13.1` to `2026-11-13.3`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
@@ -13,7 +13,15 @@ Releases `2026-11-13.1` and `2026-11-13.2`.
   On Windows and Linux: `Shift+Alt` and `Ctrl`.
 - The shortcuts list is grouped (Change the JSON, File, View), and button tooltips name their shortcut.
 
+**Fixed**
+- Pressing Stringify again kept adding backslashes. It now gives the same result, and the button is
+  disabled while the field is already a stringified JSON.
+- Turning Sort keys off now brings back the original key order (unless the JSON was edited since sorting).
+
 **Improved**
+- Copy path and Copy value are borderless.
+- The error's line and column are no longer repeated under the field; the error card and its
+  Show in input button cover it.
 - The focused Text · Tree pill shows only the yellow ring, without underlining the label.
 - The tagline stays visible at every width.
 - No separator lines between button groups; the gaps are enough.

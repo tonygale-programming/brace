@@ -1,11 +1,11 @@
 /**
- * The status row under the field: a chip that says whether the JSON is valid,
- * then figures about it, or the place of the error as a button that jumps there.
+ * The status row under the field: a chip that says whether the JSON is valid, then figures about it.
+ * Where an error is lives in the error card, with its "Show in input" button.
  */
 import { describeStructure } from './json-engine.js';
 
-/** @param elements { chip, label, stats, errorPosition } */
-export function createStatusBar({ chip, label, stats, errorPosition }) {
+/** @param elements { chip, label, stats } */
+export function createStatusBar({ chip, label, stats }) {
   function setChip(status, text) {
     chip.classList.toggle('is-valid', status === 'valid');
     chip.classList.toggle('is-invalid', status === 'invalid');
@@ -15,21 +15,16 @@ export function createStatusBar({ chip, label, stats, errorPosition }) {
   function showWaiting() {
     setChip('waiting', 'Waiting for input');
     stats.textContent = '';
-    errorPosition.hidden = true;
   }
 
   function showValid(text, data) {
     setChip('valid', 'Valid JSON');
     stats.innerHTML = buildStatsHtml(text, describeStructure(data));
-    errorPosition.hidden = true;
   }
 
-  /** @param location { line, column } */
-  function showInvalid({ line, column }) {
+  function showInvalid() {
     setChip('invalid', 'Invalid JSON');
     stats.textContent = '';
-    errorPosition.textContent = `Line ${line}, column ${column}`;
-    errorPosition.hidden = false;
   }
 
   return { showWaiting, showValid, showInvalid };

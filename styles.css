@@ -838,24 +838,6 @@ select {
   font-weight: 500;
 }
 
-/* "Line 3, column 12": a status you can press to jump to the error */
-.status-link,
-.status-link:hover {
-  height: auto;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-small);
-  background: none;
-  color: var(--text);
-  font: 500 13px/16px var(--font-ui);
-  text-decoration: underline;
-  text-underline-offset: var(--space-2);
-}
-
-.status-link:hover {
-  color: var(--danger);
-}
-
 /* ---------- Toast ---------- */
 
 .toast {

@@ -53,7 +53,6 @@ const elements = {
   copyValueButton: getElement('copy-value-button'),
   errorRepairButton: getElement('error-repair-button'),
   errorShowButton: getElement('error-show-button'),
-  errorPosition: getElement('error-position'),
   downloadButton: getElement('download-button'),
   copyButton: getElement('copy-button'),
   themeButton: getElement('theme-button'),
@@ -81,12 +80,13 @@ const statusBar = createStatusBar({
   chip: getElement('status-chip'),
   label: getElement('status-label'),
   stats: getElement('stats'),
-  errorPosition: elements.errorPosition,
 });
 
 const state = {
   lastAction: 'format',     // 'format', 'minify' or 'stringify': re-applied when Sort keys changes
-  parsed: null,             // { data } while the field holds valid JSON
+  parsed: null,             // { data, isStringified } while the field holds valid JSON
+  unsortedData: null,       // the data before Sort keys was turned on, so turning it off restores the order
+  sortedText: null,         // the field's text right after sorting; any edit makes the old order stale
   errorLocation: null,      // { position, line, column } while it doesn't
   view: 'text',             // 'text' or 'tree'
   selectedValue: undefined, // the tree node shown in the path bar, for "Copy value"
@@ -117,9 +117,9 @@ function refresh() {
     if (error) {
       state.errorLocation = errorCard.show(text, error, { canRepair: canRepair && error.repairable });
       editor.markErrorLine(state.errorLocation.line);
-      statusBar.showInvalid(state.errorLocation);
+      statusBar.showInvalid();
     } else {
-      state.parsed = { data };
+      state.parsed = { data, isStringified: unwrapStringifiedJson(data) !== null };
       errorCard.hide();
       editor.markErrorLine(null);
       statusBar.showValid(text, data);
@@ -139,6 +139,8 @@ function updateButtons() {
     elements.downloadButton, elements.copyButton, elements.treeTab,
   ];
   for (const button of needsValidJson) button.disabled = !isValid;
+  // Text that Stringify made is already one escaped string; stringifying it again would only add backslashes
+  elements.stringifyButton.disabled = !isValid || state.parsed.isStringified;
   elements.repairButton.disabled = !(isInvalid && canRepair);
   elements.clearButton.disabled = !getFieldText().trim();
 }
@@ -191,11 +193,18 @@ function applyAction(action) {
   refresh();
   if (!state.parsed) return;
 
-  // Format and Minify first unwrap text that Stringify made, so Stringify is never a one-way door.
+  // Every action starts from the real data, unwrapping text that Stringify made. That lets Format undo a
+  // Stringify, and makes pressing Stringify twice give the same result instead of more backslashes.
   const { data } = state.parsed;
-  const sourceData = action === 'stringify' ? data : (unwrapStringifiedJson(data) ?? data);
+  const sourceData = unwrapStringifiedJson(data) ?? data;
+
+  // Edited since sorting: the order the visitor now sees becomes the one to come back to.
+  if (isSortingKeys() && editor.getText() !== state.sortedText) state.unsortedData = sourceData;
+
   state.lastAction = action;
-  replaceFieldText(buildOutput(sourceData, action));
+  const output = buildOutput(sourceData, action);
+  replaceFieldText(output);
+  state.sortedText = isSortingKeys() ? output : null;
 }
 
 function changeIndent() {
@@ -203,11 +212,26 @@ function changeIndent() {
   if (state.parsed) applyAction('format');
 }
 
+/**
+ * On: sorts the keys and remembers the order before. Off: brings that order back, as long as the
+ * JSON wasn't edited in between (after an edit the old order no longer matches, so the text stays).
+ */
 function toggleSortKeys() {
   const isOn = !isSortingKeys();
   elements.sortKeysButton.setAttribute('aria-pressed', String(isOn));
   saveSetting('sort', isOn ? '1' : '');
-  if (state.parsed) applyAction(state.lastAction);
+  if (!state.parsed) return;
+
+  if (isOn) {
+    state.unsortedData = unwrapStringifiedJson(state.parsed.data) ?? state.parsed.data;
+    state.sortedText = null;
+    applyAction(state.lastAction);
+    return;
+  }
+  const isUnchangedSinceSorting = state.unsortedData !== null && editor.getText() === state.sortedText;
+  if (isUnchangedSinceSorting) replaceFieldText(buildOutput(state.unsortedData, state.lastAction));
+  state.unsortedData = null;
+  state.sortedText = null;
 }
 
 /** Pasting into an empty field formats it straight away; one Undo brings back what was pasted. */
@@ -415,7 +439,6 @@ function bindEvents() {
   bindFileDrop();
 
   elements.errorShowButton.addEventListener('click', showErrorInInput);
-  elements.errorPosition.addEventListener('click', showErrorInInput);
 
   elements.textTab.addEventListener('click', () => showView('text'));
   elements.treeTab.addEventListener('click', () => showView('tree'));

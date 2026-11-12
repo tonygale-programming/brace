@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-G0Awj5cyirIhMYfqV7qdA4mGS+4Ms4AOAxjAi31kUwY='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-WMJZOVDHciJf9XC5GEksv1Xw7sJOvmBE7nEU7oWPERU='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.2">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.3">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.2",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.2",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.2",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.2",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.2",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.2",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.2",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.2",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.2",
-        "./js/download.js": "./js/download.js?v=2026-11-13.2",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.2",
-        "./js/html.js": "./js/html.js?v=2026-11-13.2",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.2",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.2"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.3",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.3",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.3",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.3",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.3",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.3",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.3",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.3",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.3",
+        "./js/download.js": "./js/download.js?v=2026-11-13.3",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.3",
+        "./js/html.js": "./js/html.js?v=2026-11-13.3",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.3",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.3"
       }
     }
   </script>
@@ -134,8 +134,8 @@
       <div class="path-bar" id="path-bar" hidden>
         <span>Path</span>
         <code id="selected-path">$</code>
-        <button type="button" class="small" id="copy-path-button">Copy path</button>
-        <button type="button" class="small" id="copy-value-button">Copy value</button>
+        <button type="button" class="small ghost" id="copy-path-button">Copy path</button>
+        <button type="button" class="small ghost" id="copy-value-button">Copy value</button>
       </div>
 
       <div class="error-card" id="error-card" role="alert" hidden>
@@ -152,7 +152,6 @@
     <div class="toolbar status-bar" aria-live="polite">
       <span class="status-chip" id="status-chip"><span id="status-label">Waiting for input</span></span>
       <span class="stats" id="stats"></span>
-      <button type="button" class="status-link" id="error-position" hidden></button>
       <span class="toolbar-gap"></span>
       <span class="button-group">
         <button type="button" id="download-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Download</button>
@@ -181,6 +180,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.2"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.3"></script>
 </body>
 </html>
