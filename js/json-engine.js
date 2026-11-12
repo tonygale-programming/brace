@@ -35,6 +35,20 @@ export function stringifyAsEscapedString(value) {
 }
 
 /**
+ * When the data is one string that itself holds a JSON object or array (what Stringify makes),
+ * returns that inner data; otherwise null. Lets Format and Minify undo a Stringify.
+ */
+export function unwrapStringifiedJson(data) {
+  if (typeof data !== 'string') return null;
+  try {
+    const innerData = parseJson(data);
+    return isPrimitive(innerData) ? null : innerData;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Parses the text and, when it is invalid, explains why.
  * @returns {{ data: unknown, error: null } | { data: null, error: { position: number, message: string, repairable: boolean } }}
  */

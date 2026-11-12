@@ -1,30 +1,27 @@
 /**
- * Light, dark, or "auto" (follow the system setting).
+ * Light or dark. A first visit follows the system setting; pressing the theme button
+ * switches to the other theme and remembers the choice.
  *
  * The choice is applied by setting data-theme on <html>; styles.css does the rest.
  * A small script in index.html applies the saved choice before the page draws,
  * so a visitor who picked Dark never sees a flash of the light theme.
  */
-import { loadSetting, saveSetting } from './storage.js';
+import { saveSetting } from './storage.js';
 
-export const THEME_CHOICES = ['auto', 'light', 'dark'];
-const DEFAULT_THEME = 'auto';
+const DARK_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
-export function getSavedTheme() {
-  const savedTheme = loadSetting('theme');
-  return THEME_CHOICES.includes(savedTheme) ? savedTheme : DEFAULT_THEME;
+function getSystemTheme() {
+  return window.matchMedia(DARK_SCHEME_QUERY).matches ? 'dark' : 'light';
 }
 
-export function applyTheme(theme) {
-  const root = document.documentElement;
-  if (theme === DEFAULT_THEME) {
-    delete root.dataset.theme;
-  } else {
-    root.dataset.theme = theme;
-  }
+/** The theme on screen right now: the saved choice, or the system's when there is none. */
+export function getCurrentTheme() {
+  return document.documentElement.dataset.theme ?? getSystemTheme();
 }
 
-export function chooseTheme(theme) {
-  applyTheme(theme);
-  saveSetting('theme', theme);
+export function toggleTheme() {
+  const nextTheme = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = nextTheme;
+  saveSetting('theme', nextTheme);
+  return nextTheme;
 }

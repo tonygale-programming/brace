@@ -1,201 +1,230 @@
 /**
  * Brace JSON Formatter: entry point.
- * Connects the page controls to the JSON tools and keeps the app's small state.
+ *
+ * One field holds the JSON. Format, Minify and Stringify rewrite it in place (Ctrl/⌘+Z goes back),
+ * and everything else follows whatever is in the field: the status row, the error card,
+ * which buttons can be used, and the tree.
  */
-import { readJson, stringifyJson, stringifyAsEscapedString, sortKeysDeep, repairJson, canRepair } from './json-engine.js';
+import {
+  readJson, stringifyJson, stringifyAsEscapedString, unwrapStringifiedJson, sortKeysDeep, repairJson, canRepair,
+} from './json-engine.js';
 import { getLineAndColumn } from './syntax-checker.js';
-import { createResultPanel } from './result-panel.js';
-import { expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-view.js';
+import { createEditor } from './editor.js';
+import { createErrorCard } from './error-card.js';
+import { createStatusBar } from './status-bar.js';
+import { renderTree, expandAll, collapseAll, selectNode, EXPAND_ALL_LIMIT } from './tree-view.js';
 import { showToast, copyToClipboard, MODIFIER_KEY_LABEL, LONG_TOAST_MS } from './notifications.js';
+import { saveTextAsFile } from './download.js';
 import { loadSetting, saveSetting } from './storage.js';
-import { getSavedTheme, applyTheme, chooseTheme } from './theme.js';
+import { toggleTheme } from './theme.js';
 import { enableOfflineUse } from './offline.js';
 
 const TYPING_DELAY_MS = 180;
 const MAX_SAVED_DRAFT_LENGTH = 500_000; // characters; larger inputs are not remembered
-const LINES_SHOWN_ABOVE_ERROR = 3;
 const BYTE_ORDER_MARK = /^﻿/;
-
-const COPY_MESSAGES = {
-  format: 'Copied formatted JSON',
-  minify: 'Copied minified JSON',
-  stringify: 'Copied as an escaped string',
-};
+const DEFAULT_FILE_NAME = 'brace.json';
 
 const SAMPLE_JSON = '{"order":{"id":"ORD-20419","placedAt":"2026-11-08T09:41:27Z","status":"shipped","customer":{"name":"Mara Lindqvist","email":"mara@example.com","loyaltyTier":"gold"},"items":[{"sku":"KB-7720","title":"Mechanical keyboard, 75% layout","qty":1,"unitPrice":129.0},{"sku":"CB-0031","title":"Braided USB-C cable, 2 m","qty":2,"unitPrice":14.5}],"shipping":{"carrier":"DHL","tracking":"JD014600006281990","address":{"line1":"Sveavägen 44","city":"Stockholm","postcode":"111 34","country":"SE"}},"totals":{"subtotal":158.0,"shipping":0,"tax":39.5,"currency":"EUR"},"giftWrap":false,"notes":null}}';
 
 const getElement = (id) => document.getElementById(id);
 
 const elements = {
+  editorPane: getElement('editor-pane'),
+  editor: getElement('editor'),
   input: getElement('json-input'),
-  inputPane: getElement('input-pane'),
-  sampleBadge: getElement('sample-badge'),
   fileInput: getElement('file-input'),
-  indentSelect: getElement('indent-select'),
-  sortKeysCheckbox: getElement('sort-keys-checkbox'),
   formatButton: getElement('format-button'),
   minifyButton: getElement('minify-button'),
   stringifyButton: getElement('stringify-button'),
+  indentSelect: getElement('indent-select'),
+  sortKeysButton: getElement('sort-keys-button'),
   sampleButton: getElement('sample-button'),
   repairButton: getElement('repair-button'),
   clearButton: getElement('clear-button'),
-  copyButton: getElement('copy-button'),
   textTab: getElement('text-tab'),
   treeTab: getElement('tree-tab'),
-  textView: getElement('text-view'),
   treeView: getElement('tree-view'),
+  treeRoot: getElement('tree-root'),
   treeActions: getElement('tree-actions'),
   expandButton: getElement('expand-button'),
   collapseButton: getElement('collapse-button'),
-  treeRoot: getElement('tree-root'),
-  codeElement: getElement('formatted-code'),
   pathBar: getElement('path-bar'),
   selectedPath: getElement('selected-path'),
   copyPathButton: getElement('copy-path-button'),
-  statusChip: getElement('status-chip'),
-  stats: getElement('stats'),
-  modifierKey: getElement('modifier-key'),
-  themeButtons: document.querySelectorAll('[data-theme-choice]'),
+  copyValueButton: getElement('copy-value-button'),
+  errorRepairButton: getElement('error-repair-button'),
+  errorShowButton: getElement('error-show-button'),
+  errorPosition: getElement('error-position'),
+  downloadButton: getElement('download-button'),
+  copyButton: getElement('copy-button'),
+  themeButton: getElement('theme-button'),
+  shortcutsButton: getElement('shortcuts-button'),
+  shortcutsDialog: getElement('shortcuts-dialog'),
+  shortcutsCloseButton: getElement('shortcuts-close-button'),
 };
 
+const editor = createEditor({
+  container: elements.editor,
+  input: elements.input,
+  highlight: getElement('editor-highlight'),
+  gutter: getElement('editor-gutter'),
+});
+
+const errorCard = createErrorCard({
+  card: getElement('error-card'),
+  title: getElement('error-title'),
+  message: getElement('error-message'),
+  snippet: getElement('error-snippet'),
+  repairButton: elements.errorRepairButton,
+});
+
+const statusBar = createStatusBar({
+  chip: getElement('status-chip'),
+  label: getElement('status-label'),
+  stats: getElement('stats'),
+  errorPosition: elements.errorPosition,
+});
+
 const state = {
-  mode: 'format',      // 'format', 'minify' or 'stringify'
-  output: '',          // the latest valid result, used by Copy
-  errorLocation: null, // { position, line } of the current error, used by "Show in input"
+  lastAction: 'format',     // 'format', 'minify' or 'stringify': re-applied when Sort keys changes
+  parsed: null,             // { data } while the field holds valid JSON
+  errorLocation: null,      // { position, line, column } while it doesn't
+  view: 'text',             // 'text' or 'tree'
+  selectedValue: undefined, // the tree node shown in the path bar, for "Copy value"
+  fileName: DEFAULT_FILE_NAME,
 };
 
 let typingTimer = null;
 
-const resultPanel = createResultPanel(elements, {
-  onRepair: repairInput,
-  onShowInInput: showErrorInInput,
-});
+/* ---------- Following the field ---------- */
 
-/* ---------- Formatting ---------- */
-
-function getIndent() {
-  const choice = elements.indentSelect.value;
-  return choice === 'tab' ? '\t' : Number(choice);
+function getFieldText() {
+  return editor.getText().replace(BYTE_ORDER_MARK, '');
 }
 
-/** Reads the input and shows the result, an error, or the empty state. */
-function updateResult(newMode) {
-  if (newMode) state.mode = newMode;
-  state.output = '';
+/** Checks the field and updates everything that depends on it. */
+function refresh() {
+  clearTimeout(typingTimer);
+  const text = getFieldText();
+  state.parsed = null;
   state.errorLocation = null;
 
-  const text = elements.input.value.replace(BYTE_ORDER_MARK, '');
   if (!text.trim()) {
-    resultPanel.showEmpty();
-    return;
+    statusBar.showWaiting();
+    errorCard.hide();
+    editor.markErrorLine(null);
+  } else {
+    const { data, error } = readJson(text);
+    if (error) {
+      state.errorLocation = errorCard.show(text, error, { canRepair: canRepair && error.repairable });
+      editor.markErrorLine(state.errorLocation.line);
+      statusBar.showInvalid(state.errorLocation);
+    } else {
+      state.parsed = { data };
+      errorCard.hide();
+      editor.markErrorLine(null);
+      statusBar.showValid(text, data);
+    }
   }
 
-  const { data, error } = readJson(text);
-  if (error) {
-    state.errorLocation = resultPanel.showError(text, error, { canRepair: canRepair && error.repairable });
-    return;
-  }
-
-  const orderedData = elements.sortKeysCheckbox.checked ? sortKeysDeep(data) : data;
-  state.output = buildOutput(orderedData);
-  resultPanel.showResult({ inputText: text, outputText: state.output, data: orderedData, mode: state.mode });
+  updateButtons();
+  if (state.view === 'tree') showView(state.parsed ? 'tree' : 'text');
 }
 
-function buildOutput(data) {
-  if (state.mode === 'minify') return stringifyJson(data);
-  if (state.mode === 'stringify') return stringifyAsEscapedString(data);
-  return stringifyJson(data, getIndent());
+/** A control that can't do anything right now is disabled, rather than explaining after the click. */
+function updateButtons() {
+  const isValid = Boolean(state.parsed);
+  const isInvalid = Boolean(state.errorLocation);
+  const needsValidJson = [
+    elements.formatButton, elements.minifyButton, elements.stringifyButton,
+    elements.downloadButton, elements.copyButton, elements.treeTab,
+  ];
+  for (const button of needsValidJson) button.disabled = !isValid;
+  elements.repairButton.disabled = !(isInvalid && canRepair);
+  elements.clearButton.disabled = !getFieldText().trim();
 }
 
-function showErrorInInput() {
-  const { input } = elements;
-  const location = state.errorLocation;
-  if (!location) return;
-
-  input.focus();
-  input.setSelectionRange(location.position, Math.min(location.position + 1, input.value.length));
-  const lineHeight = parseFloat(getComputedStyle(input).lineHeight) || 20;
-  input.scrollTop = Math.max(0, (location.line - 1 - LINES_SHOWN_ABOVE_ERROR) * lineHeight);
-}
-
-/* ---------- Input ---------- */
-
-function setInputText(text, { isSample = false } = {}) {
-  elements.input.value = text;
-  elements.sampleBadge.hidden = !isSample;
-  updateResult('format');
+function handleTyping() {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    refresh();
+    saveDraft(editor.getText());
+  }, TYPING_DELAY_MS);
 }
 
 function saveDraft(text) {
   if (text.length <= MAX_SAVED_DRAFT_LENGTH) saveSetting('draft', text);
 }
 
-function handleTyping() {
-  elements.sampleBadge.hidden = true;
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => {
-    updateResult();
-    saveDraft(elements.input.value);
-  }, TYPING_DELAY_MS);
+/** Replaces the field's text (Ctrl/⌘+Z can bring the old one back) and updates everything. */
+function replaceFieldText(text) {
+  const canUndo = editor.setText(text);
+  refresh();
+  saveDraft(text);
+  return canUndo;
 }
 
-function clearInput() {
-  setInputText('');
-  saveSetting('draft', '');
-  elements.input.focus();
+/** Replaces the field's text and offers an Undo button in the toast. */
+function replaceFieldTextWithUndo(text, message) {
+  const previousText = editor.getText();
+  replaceFieldText(text);
+  showToast(message, { onUndo: () => replaceFieldText(previousText) });
 }
 
-function openFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    setInputText(String(reader.result));
-    showToast(`Opened ${file.name}`);
-  };
-  reader.onerror = () => showToast(`Could not read ${file.name}`);
-  reader.readAsText(file);
+/* ---------- Format, Minify, Stringify ---------- */
+
+function getIndent() {
+  const choice = elements.indentSelect.value;
+  return choice === 'tab' ? '\t' : Number(choice);
 }
 
-/* ---------- Repair ---------- */
+const isSortingKeys = () => elements.sortKeysButton.getAttribute('aria-pressed') === 'true';
 
-/**
- * Replaces the whole input using the browser's editing command, so Undo brings
- * the original back. Returns false if the browser refused and we had to set the
- * value directly; Undo will not work in that case.
- */
-function replaceInputUndoably(text) {
-  const { input } = elements;
-  input.focus();
-  input.select();
-
-  let replaced = false;
-  try {
-    replaced = document.execCommand('insertText', false, text) && input.value === text;
-  } catch {
-    replaced = false;
-  }
-  if (!replaced) input.value = text;
-
-  input.setSelectionRange(0, 0);
-  input.scrollTop = 0;
-  return replaced;
+function buildOutput(data, action) {
+  const orderedData = isSortingKeys() ? sortKeysDeep(data) : data;
+  if (action === 'minify') return stringifyJson(orderedData);
+  if (action === 'stringify') return stringifyAsEscapedString(orderedData);
+  return stringifyJson(orderedData, getIndent());
 }
+
+/** Rewrites the field as formatted, minified or stringified JSON. */
+function applyAction(action) {
+  refresh();
+  if (!state.parsed) return;
+
+  // Format and Minify first unwrap text that Stringify made, so Stringify is never a one-way door.
+  const { data } = state.parsed;
+  const sourceData = action === 'stringify' ? data : (unwrapStringifiedJson(data) ?? data);
+  state.lastAction = action;
+  replaceFieldText(buildOutput(sourceData, action));
+}
+
+function changeIndent() {
+  saveSetting('indent', elements.indentSelect.value);
+  if (state.parsed) applyAction('format');
+}
+
+function toggleSortKeys() {
+  const isOn = !isSortingKeys();
+  elements.sortKeysButton.setAttribute('aria-pressed', String(isOn));
+  saveSetting('sort', isOn ? '1' : '');
+  if (state.parsed) applyAction(state.lastAction);
+}
+
+/** Pasting into an empty field formats it straight away; one Undo brings back what was pasted. */
+function handlePaste() {
+  if (getFieldText().trim()) return;
+  // The pasted text arrives after this event, so wait for it.
+  setTimeout(() => {
+    refresh();
+    if (state.parsed) applyAction('format');
+  }, 0);
+}
+
+/* ---------- Repair, Sample, Clear, files ---------- */
 
 function repairInput() {
-  const text = elements.input.value;
-  if (!text.trim()) {
-    showToast('Nothing to repair yet');
-    return;
-  }
-  if (!canRepair) {
-    showToast('Repair is unavailable because its library did not load. Check your connection and reload.', LONG_TOAST_MS);
-    return;
-  }
-  if (!readJson(text).error) {
-    showToast('This is already valid JSON');
-    return;
-  }
-
+  const text = editor.getText();
   let repairedText;
   try {
     repairedText = repairJson(text);
@@ -203,40 +232,84 @@ function repairInput() {
     const lineHint = typeof error.position === 'number'
       ? ` (line ${getLineAndColumn(text, error.position).line})`
       : '';
-    showToast(`Could not repair this automatically${lineHint}. Fix it by hand using the error details.`, LONG_TOAST_MS);
+    showToast(`Could not repair this automatically${lineHint}. Fix it by hand using the error details.`,
+      { durationMs: LONG_TOAST_MS });
     return;
   }
   if (repairedText === text) {
-    showToast('Repair cannot fix this one. Fix it by hand using the error details.', LONG_TOAST_MS);
+    showToast('Repair cannot fix this one. Fix it by hand using the error details.', { durationMs: LONG_TOAST_MS });
     return;
   }
-
-  const canUndo = replaceInputUndoably(repairedText);
-  clearTimeout(typingTimer); // the replacement counts as typing; update right away instead
-  elements.sampleBadge.hidden = true;
-  updateResult('format');
-  saveDraft(repairedText);
-  showToast(canUndo ? `Repaired. Press ${MODIFIER_KEY_LABEL}+Z to undo.` : 'Repaired', LONG_TOAST_MS);
+  replaceFieldTextWithUndo(repairedText, 'Repaired');
 }
 
-/* ---------- Result tabs and tree ---------- */
+function loadSample() {
+  state.fileName = DEFAULT_FILE_NAME;
+  replaceFieldTextWithUndo(buildOutput(readJson(SAMPLE_JSON).data, 'format'), 'Sample loaded');
+}
 
-function showTab(tabName) {
-  const isTree = tabName === 'tree';
+function clearField() {
+  state.fileName = DEFAULT_FILE_NAME;
+  replaceFieldTextWithUndo('', 'Cleared');
+  elements.input.focus();
+}
+
+function openFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.fileName = file.name;
+    replaceFieldText(String(reader.result));
+    if (state.parsed) applyAction('format');
+    showToast(`Opened ${file.name}`);
+  };
+  reader.onerror = () => showToast(`Could not read ${file.name}`);
+  reader.readAsText(file);
+}
+
+function showErrorInInput() {
+  if (!state.errorLocation) return;
+  showView('text');
+  editor.showPosition(state.errorLocation.position, state.errorLocation.line);
+}
+
+/* ---------- Text and Tree ---------- */
+
+function showView(view) {
+  const isTree = view === 'tree' && Boolean(state.parsed);
+  const wasTree = state.view === 'tree';
+  state.view = isTree ? 'tree' : 'text';
+
   elements.textTab.setAttribute('aria-selected', String(!isTree));
   elements.treeTab.setAttribute('aria-selected', String(isTree));
-  elements.textView.hidden = isTree;
+  elements.editor.hidden = isTree;
   elements.treeView.hidden = !isTree;
   elements.treeActions.hidden = !isTree;
   elements.pathBar.hidden = !isTree;
-  saveSetting('tab', tabName);
+
+  // Rebuild the tree when it opens or the JSON changed under it; keep it while just switching back
+  if (isTree && (!wasTree || elements.treeRoot.dataset.source !== editor.getText())) {
+    renderTree(elements.treeRoot, state.parsed.data);
+    elements.treeRoot.dataset.source = editor.getText();
+    elements.selectedPath.textContent = '$';
+    state.selectedValue = state.parsed.data;
+  }
 }
 
 function selectTreeKey(event) {
   if (!event.target.classList.contains('tree-key')) return;
   event.preventDefault();
-  const path = selectNode(elements.treeRoot, event.target);
-  if (path) elements.selectedPath.textContent = path;
+  const selection = selectNode(elements.treeRoot, event.target);
+  if (!selection) return;
+  elements.selectedPath.textContent = selection.path;
+  state.selectedValue = selection.value;
+}
+
+function copySelectedValue() {
+  const value = state.selectedValue;
+  // A string is copied as its text; anything else as JSON
+  const text = typeof value === 'string' ? value : stringifyJson(value, getIndent());
+  copyToClipboard(text, 'Copied value', elements.selectedPath);
 }
 
 function expandWholeTree() {
@@ -244,43 +317,36 @@ function expandWholeTree() {
   if (!isComplete) showToast(`Expanded the first ${EXPAND_ALL_LIMIT.toLocaleString()} nodes`);
 }
 
-function copyOutput() {
-  const message = COPY_MESSAGES[state.mode];
-  copyToClipboard(state.output, message, elements.codeElement);
+/* ---------- Download and Copy ---------- */
+
+function downloadField() {
+  saveTextAsFile(editor.getText(), state.fileName);
+  showToast(`Downloaded ${state.fileName}`);
 }
 
-/* ---------- Theme ---------- */
-
-function showChosenTheme(theme) {
-  for (const button of elements.themeButtons) {
-    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
-  }
-}
-
-function handleThemeClick(event) {
-  const theme = event.currentTarget.dataset.themeChoice;
-  chooseTheme(theme);
-  showChosenTheme(theme);
+function copyField() {
+  copyToClipboard(editor.getText(), 'Copied', elements.input);
 }
 
 /* ---------- Events ---------- */
 
-const isFileDrag = (event) => Boolean(event.dataTransfer?.types.includes('Files'));
+const hasFiles = (event) => Boolean(event.dataTransfer?.types.includes('Files'));
 
+/** A file can be dropped anywhere on the page; the field lights up while one is dragged over. */
 function bindFileDrop() {
-  const { inputPane } = elements;
-
   const showDropTarget = (event) => {
-    if (!isFileDrag(event)) return;
+    if (!hasFiles(event)) return;
     event.preventDefault();
-    inputPane.classList.add('is-dragging');
+    elements.editorPane.classList.add('is-dragging');
   };
-  const hideDropTarget = () => inputPane.classList.remove('is-dragging');
+  const hideDropTarget = () => elements.editorPane.classList.remove('is-dragging');
 
-  inputPane.addEventListener('dragenter', showDropTarget);
-  inputPane.addEventListener('dragover', showDropTarget);
-  inputPane.addEventListener('dragleave', hideDropTarget);
-  inputPane.addEventListener('drop', (event) => {
+  document.addEventListener('dragenter', showDropTarget);
+  document.addEventListener('dragover', showDropTarget);
+  document.addEventListener('dragleave', (event) => {
+    if (!event.relatedTarget) hideDropTarget(); // the pointer left the window
+  });
+  document.addEventListener('drop', (event) => {
     hideDropTarget();
     if (!event.dataTransfer?.files.length) return;
     event.preventDefault();
@@ -288,41 +354,47 @@ function bindFileDrop() {
   });
 }
 
+const isTypingInAField = (target) => target.matches('textarea, input, select');
+
 function handleShortcut(event) {
   const isModifierPressed = event.metaKey || event.ctrlKey;
-  if (!isModifierPressed || event.key !== 'Enter') return;
-  event.preventDefault();
-  updateResult(event.shiftKey ? 'minify' : 'format');
+  if (isModifierPressed && event.key === 'Enter') {
+    event.preventDefault();
+    applyAction(event.shiftKey ? 'minify' : 'format');
+    return;
+  }
+  if (event.key === '?' && !isTypingInAField(event.target)) {
+    event.preventDefault();
+    elements.shortcutsDialog.showModal();
+  }
 }
 
 function bindEvents() {
   elements.input.addEventListener('input', handleTyping);
-  elements.formatButton.addEventListener('click', () => updateResult('format'));
-  elements.minifyButton.addEventListener('click', () => updateResult('minify'));
-  elements.stringifyButton.addEventListener('click', () => updateResult('stringify'));
+  elements.input.addEventListener('paste', handlePaste);
 
-  elements.indentSelect.addEventListener('change', () => {
-    saveSetting('indent', elements.indentSelect.value);
-    updateResult('format');
-  });
-  elements.sortKeysCheckbox.addEventListener('change', () => {
-    saveSetting('sort', elements.sortKeysCheckbox.checked ? '1' : '');
-    updateResult();
-  });
+  elements.formatButton.addEventListener('click', () => applyAction('format'));
+  elements.minifyButton.addEventListener('click', () => applyAction('minify'));
+  elements.stringifyButton.addEventListener('click', () => applyAction('stringify'));
+  elements.indentSelect.addEventListener('change', changeIndent);
+  elements.sortKeysButton.addEventListener('click', toggleSortKeys);
 
-  elements.sampleButton.addEventListener('click', () => setInputText(SAMPLE_JSON, { isSample: true }));
-  elements.clearButton.addEventListener('click', clearInput);
-  elements.repairButton.hidden = !canRepair;
-  elements.repairButton.addEventListener('click', repairInput);
   elements.fileInput.addEventListener('change', () => {
     openFile(elements.fileInput.files[0]);
     elements.fileInput.value = ''; // lets the same file be opened again
   });
+  elements.sampleButton.addEventListener('click', loadSample);
+  elements.repairButton.hidden = !canRepair;
+  elements.repairButton.addEventListener('click', repairInput);
+  elements.errorRepairButton.addEventListener('click', repairInput);
+  elements.clearButton.addEventListener('click', clearField);
   bindFileDrop();
 
-  elements.copyButton.addEventListener('click', copyOutput);
-  elements.textTab.addEventListener('click', () => showTab('text'));
-  elements.treeTab.addEventListener('click', () => showTab('tree'));
+  elements.errorShowButton.addEventListener('click', showErrorInInput);
+  elements.errorPosition.addEventListener('click', showErrorInInput);
+
+  elements.textTab.addEventListener('click', () => showView('text'));
+  elements.treeTab.addEventListener('click', () => showView('tree'));
   elements.expandButton.addEventListener('click', expandWholeTree);
   elements.collapseButton.addEventListener('click', () => collapseAll(elements.treeRoot));
   elements.treeRoot.addEventListener('click', selectTreeKey);
@@ -332,10 +404,14 @@ function bindEvents() {
   elements.copyPathButton.addEventListener('click', () => {
     copyToClipboard(elements.selectedPath.textContent, 'Copied path', elements.selectedPath);
   });
+  elements.copyValueButton.addEventListener('click', copySelectedValue);
 
-  for (const button of elements.themeButtons) {
-    button.addEventListener('click', handleThemeClick);
-  }
+  elements.downloadButton.addEventListener('click', downloadField);
+  elements.copyButton.addEventListener('click', copyField);
+
+  elements.themeButton.addEventListener('click', toggleTheme);
+  elements.shortcutsButton.addEventListener('click', () => elements.shortcutsDialog.showModal());
+  elements.shortcutsCloseButton.addEventListener('click', () => elements.shortcutsDialog.close());
 
   document.addEventListener('keydown', handleShortcut);
 }
@@ -343,26 +419,21 @@ function bindEvents() {
 /* ---------- Start ---------- */
 
 function restorePreferences() {
-  const savedTheme = getSavedTheme();
-  applyTheme(savedTheme);
-  showChosenTheme(savedTheme);
-
   const savedIndent = loadSetting('indent');
   const indentChoices = [...elements.indentSelect.options].map((option) => option.value);
   if (indentChoices.includes(savedIndent)) elements.indentSelect.value = savedIndent;
-
-  elements.sortKeysCheckbox.checked = loadSetting('sort') === '1';
-  if (loadSetting('tab') === 'tree') showTab('tree');
+  elements.sortKeysButton.setAttribute('aria-pressed', String(loadSetting('sort') === '1'));
 }
 
-function loadInitialInput() {
+function loadInitialText() {
   const draft = loadSetting('draft');
-  if (draft?.trim()) setInputText(draft);
-  else setInputText(SAMPLE_JSON, { isSample: true });
+  const initialText = draft?.trim() ? draft : buildOutput(readJson(SAMPLE_JSON).data, 'format');
+  editor.setText(initialText, { undoable: false });
+  refresh();
 }
 
-elements.modifierKey.textContent = MODIFIER_KEY_LABEL;
+for (const key of document.querySelectorAll('.modifier-key')) key.textContent = MODIFIER_KEY_LABEL;
 bindEvents();
 restorePreferences();
-loadInitialInput();
+loadInitialText();
 enableOfflineUse();

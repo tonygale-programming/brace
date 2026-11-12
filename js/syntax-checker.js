@@ -109,6 +109,11 @@ export function findSyntaxError(text) {
     const character = currentCharacter();
     if (character === "'") fail('Keys must use double quotes, not single quotes.');
     if (character === undefined) fail('The input ends inside an object. A closing } is missing.');
+    if (LETTER_PATTERN.test(character)) {
+      WORD_PATTERN.lastIndex = position;
+      const key = WORD_PATTERN.exec(text)[0];
+      fail(`This key is missing its quotes. JSON keys need double quotes: write "${key}" instead of ${key}.`);
+    }
     if (character !== '"') fail(`Expected a key in double quotes but found ${describe(character)}.`);
 
     checkString();

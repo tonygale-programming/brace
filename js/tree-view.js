@@ -16,6 +16,9 @@ const IDENTIFIER_PATTERN = /^[A-Za-z_$][\w$]*$/;
 // <details> element → { value, path, depth, childrenRendered }
 const containerData = new WeakMap();
 
+// Row or <summary> element → the value it shows, for "Copy value"
+const rowValues = new WeakMap();
+
 /** Builds a JSONPath-style path such as $.order.items[0]["first name"]. */
 function getChildPath(parentPath, key, parentIsArray) {
   if (parentIsArray) return `${parentPath}[${key}]`;
@@ -60,6 +63,7 @@ function createPrimitiveRow({ key, value, path, isArrayIndex }) {
   row.className = 'tree-leaf';
   row.dataset.path = path;
   row.innerHTML = keyHtml(key, isArrayIndex) + primitiveHtml(value);
+  rowValues.set(row, value);
   return row;
 }
 
@@ -68,6 +72,7 @@ function createContainer({ key, value, path, depth, isArrayIndex }) {
   const summary = document.createElement('summary');
   summary.dataset.path = path;
   summary.innerHTML = containerSummaryHtml(key, value, isArrayIndex);
+  rowValues.set(summary, value);
   container.append(summary);
 
   containerData.set(container, { value, path, depth, childrenRendered: false });
@@ -138,12 +143,12 @@ export function collapseAll(rootElement) {
   });
 }
 
-/** Highlights the row of a clicked key and returns its path, or null if it has none. */
+/** Highlights the row of a clicked key and returns { path, value }, or null if it has none. */
 export function selectNode(rootElement, keyElement) {
   const row = keyElement.closest('[data-path]');
   if (!row) return null;
 
   rootElement.querySelectorAll('.selected').forEach((element) => element.classList.remove('selected'));
   row.classList.add('selected');
-  return row.dataset.path;
+  return { path: row.dataset.path, value: rowValues.get(row) };
 }

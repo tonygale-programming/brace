@@ -1,14 +1,12 @@
 /**
- * Colours formatted JSON text and shows it with line numbers.
+ * Colours one line of JSON text, for the editor's coloured layer.
+ * It works on any text, valid or not, so colours keep up while someone types.
  */
 import { escapeHtml } from './html.js';
 
-// One token of formatted JSON. Strings are matched first, so digits or brackets
+// One token of JSON. Strings are matched first, so digits or brackets
 // inside a string are never mistaken for numbers or punctuation.
-const TOKEN_PATTERN = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false)\b|\b(null)\b|([{}[\],])/g;
-
-// Above this many characters, colouring costs more time than it is worth.
-const PLAIN_TEXT_LIMIT = 2_000_000;
+const TOKEN_PATTERN = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false)\b|\b(null)\b|([{}[\],:])/g;
 
 const wrapToken = (cssClass, text) => `<span class="${cssClass}">${escapeHtml(text)}</span>`;
 
@@ -36,22 +34,4 @@ export function highlightLine(line) {
     lastIndex = match.index + match[0].length;
   }
   return html + escapeHtml(line.slice(lastIndex));
-}
-
-/**
- * Fills the code element with one numbered, coloured line per line of text.
- * @param {{ wrapLines: boolean }} options wrap long lines instead of scrolling sideways
- */
-export function renderHighlightedCode(codeElement, text, { wrapLines }) {
-  codeElement.classList.toggle('is-wrapped', wrapLines);
-  codeElement.classList.toggle('is-plain', text.length > PLAIN_TEXT_LIMIT);
-
-  if (text.length > PLAIN_TEXT_LIMIT) {
-    codeElement.textContent = text;
-    return;
-  }
-  codeElement.innerHTML = text
-    .split('\n')
-    .map((line) => `<span class="code-line">${highlightLine(line) || ' '}</span>`)
-    .join('');
 }

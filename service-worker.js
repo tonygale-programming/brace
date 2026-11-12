@@ -6,7 +6,7 @@
  * Each release gets its own cache, and older caches are deleted when it takes over.
  */
 
-const RELEASE = '2026-11-09.5';
+const RELEASE = '2026-11-12.2';
 const CACHE_PREFIX = 'brace-';
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const PAGE_URL = './';
@@ -17,7 +17,10 @@ const VERSIONED_FILES = [
   'js/main.js',
   'js/json-engine.js',
   'js/syntax-checker.js',
-  'js/result-panel.js',
+  'js/editor.js',
+  'js/error-card.js',
+  'js/status-bar.js',
+  'js/download.js',
   'js/highlighter.js',
   'js/tree-view.js',
   'js/notifications.js',

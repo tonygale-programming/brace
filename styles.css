@@ -1,12 +1,10 @@
 /*
- * Brace JSON Formatter styles
+ * Brace JSON Formatter styles, following the Brace design system.
  *
- * Layout: a header with the toolbar, two panes side by side (input | result),
- * and a status bar below. On narrow screens the panes stack into one column.
+ * Layout: one column. The header, two rows of controls, one field that fills the window, and a status row.
  *
- * Sizing rule: every gap, padding and margin uses a --space-* token, and every
- * other size (heights, widths, radii, line heights of code) is a multiple of 4px.
- * The only exceptions are 1px borders and font sizes.
+ * Sizing rule: every gap, padding and margin uses a --space-* token, and every other size is a multiple
+ * of 4px. The only exceptions are borders (1px, and the 1.5px outline) and font sizes.
  */
 
 /* ---------- Fonts ----------
@@ -64,42 +62,54 @@
 }
 
 /* ---------- Theme ----------
- * Each colour is written once as light-dark(<light value>, <dark value>).
- * The browser picks one based on color-scheme:
- *   no data-theme      → follows the system setting (Auto)
+ * Colours come from the Brace design system (https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh).
+ * Each is written once as light-dark(<light value>, <dark value>); the browser picks one by color-scheme:
+ *   no data-theme      → follows the system setting
  *   data-theme="light" → always light
  *   data-theme="dark"  → always dark
- * js/theme.js sets data-theme on <html> when the visitor uses the theme switch.
+ * js/theme.js sets data-theme when the visitor presses the theme button.
  */
 
 :root {
   color-scheme: light dark;
 
   /* Surfaces and text */
-  --background: light-dark(#f1f3f6, #0f1217);
-  --surface: light-dark(#ffffff, #161a21);
-  --surface-sunken: light-dark(#f7f8fa, #12161c);
-  --text: light-dark(#191d26, #e4e8ef);
-  --text-muted: light-dark(#576073, #98a1b3);
-  --text-faint: light-dark(#9aa2b1, #5f6879);
-  --border: light-dark(#d9dde5, #2a303b);
+  --background: light-dark(#e3e4e8, #17181c);
+  --surface: light-dark(#ffffff, #1f2025);
+  --surface-hover: light-dark(#f0f1f4, #2b2d34);
+  --surface-sunken: light-dark(#f4f5f7, #17181c);
+  --border: light-dark(#000000, #d5d6db);
+  --border-subtle: light-dark(#cfd1d7, #3b3d45);
+  --text: light-dark(#000000, #ffffff);
+  --text-muted: light-dark(#50525a, #a6a8b1);
+  --text-faint: light-dark(#6c6f78, #8c8e98);
 
-  /* Brand and states */
-  --accent: light-dark(#a85d00, #f2b24a);
-  --accent-text: light-dark(#ffffff, #1d1405);
-  --accent-soft: light-dark(#fbefdc, #3a2a10);
-  --success: light-dark(#1b7444, #6fd49b);
-  --success-soft: light-dark(#e1f2e8, #15301f);
-  --danger: light-dark(#b8322a, #ff8077);
-  --danger-soft: light-dark(#fbe5e3, #3a1a18);
+  /* Yellow: the main action (Format) and anything that is on or selected */
+  --accent: #ffbf00;
+  --accent-text: #000000;
+  --accent-soft: light-dark(#fff3c9, #40320a);
+
+  /* Ink: the error card's Repair JSON button and the toast */
+  --primary: light-dark(#000000, #ffffff);
+  --primary-text: light-dark(#ffffff, #17181c);
+  --focus: light-dark(#000000, #ffffff);
+
+  /* States */
+  --success: light-dark(#0a5c1f, #99ffb3);
+  --success-fill: #99ffb3;
+  --on-success: #0a5c1f;
+  --danger: light-dark(#b3261e, #ffb4ab);
+  --danger-fill: #b3261e;
+  --on-danger: #ffffff;
+  --danger-soft: light-dark(#fdeceb, #3b1512);
 
   /* JSON syntax colours */
-  --token-key: light-dark(#1f4fa8, #8fb4ff);
-  --token-string: light-dark(#1b7444, #8fd6a5);
+  --token-key: light-dark(#001a66, #a9c2ff);
+  --token-string: light-dark(#0a5c1f, #99ffb3);
   --token-number: light-dark(#7a3fb0, #d1a6ff);
   --token-boolean: light-dark(#b0521a, #f2a66b);
-  --token-null: light-dark(#858b97, #7f889a);
-  --token-punctuation: light-dark(#6b7384, #8b94a5);
+  --token-null: var(--text-muted);
+  --token-punctuation: var(--text-muted);
 
   /* Spacing scale: the only values used for gaps, paddings and margins */
   --space-2: 2px;
@@ -110,14 +120,24 @@
   --space-20: 20px;
   --space-24: 24px;
   --space-32: 32px;
+  --space-48: 48px;
 
   /* Sizes */
-  --control-height: 32px; /* buttons, dropdowns and switches */
+  --control-height: 32px; /* buttons, dropdowns and switches; 40px on touch screens */
+  --chip-height: 24px;
+  --icon-size: 20px;
+  --border-width: 1.5px;
+  --focus-width: 2px;
   --code-line-height: 20px;
-  --radius: 8px;
+  --gutter-width: 40px; /* line numbers */
+
+  /* Shapes */
+  --radius-pill: 999px;
+  --radius-pane: 12px;
+  --radius-card: 8px;
   --radius-small: 4px;
 
-  /* Type */
+  /* Type: IBM Plex for now (the design system suggests Roboto; still to decide) */
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
@@ -130,7 +150,19 @@
   color-scheme: dark;
 }
 
+@media (pointer: coarse) {
+  :root {
+    --control-height: 40px;
+  }
+}
+
 /* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 :root {
   /* Keep content clear of the notch and home bar on phones */
@@ -142,81 +174,56 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 14px;
+  font: 400 14px/20px var(--font-ui);
 }
 
 [hidden] {
   display: none !important;
 }
 
+/* Lucide icons (https://lucide.dev, ISC license), inlined as <svg class="icon"> so they take the text colour.
+   They are drawn with lines, not fills. */
+.icon {
+  flex: none;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Page layout ----------
+ * One column: header, two rows of controls, the field, the status row.
+ * The page fills the window, so the field takes the height that is left and scrolls inside.
+ */
+
 .app {
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
+  height: 100vh;
+  height: 100dvh;
+  min-height: 480px;
   max-width: 1440px;
   margin: 0 auto;
-  padding-block: var(--space-16) var(--space-24);
-  padding-left: max(var(--space-16), env(safe-area-inset-left, 0px));
-  padding-right: max(var(--space-16), env(safe-area-inset-right, 0px));
+  padding-block: var(--space-16);
+  padding-left: max(var(--space-48), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-48), env(safe-area-inset-right, 0px));
 }
 
-/* ---------- Header and toolbar ---------- */
-
-.app-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-12) var(--space-20);
-}
-
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-12);
-  min-width: 0;
-}
-
-.brand h1 {
-  margin: 0;
-  font-family: var(--font-code);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.brand h1 b {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.brand p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.privacy-note {
-  color: var(--success);
-  font-weight: 500;
-}
-
-.brand a {
-  color: var(--accent);
-  text-underline-offset: var(--space-2);
-}
-
-.brand a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: var(--space-2);
-}
-
+/* A row of controls. .toolbar-gap pushes what follows it to the far end. */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-8);
+  min-height: var(--control-height);
+}
+
+.toolbar-gap {
+  flex: 1;
 }
 
 /* Buttons that belong together and should wrap as one unit */
@@ -225,133 +232,189 @@ body {
   gap: var(--space-8);
 }
 
-.select-label,
-.checkbox-label {
+.separator {
+  width: 1px;
+  height: var(--space-24);
+  margin-inline: var(--space-4);
+  background: var(--border-subtle);
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) var(--space-16);
+}
+
+.brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-12);
+  min-width: 0;
+}
+
+.brand-mark {
+  margin: 0;
+  font: 600 22px/32px var(--font-code);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.brand-tagline {
+  margin: 0;
+  color: var(--text-muted);
+  font: 500 13px/16px var(--font-ui);
+}
+
+.privacy-note {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-4);
+  color: var(--success);
+  font: 500 13px/16px var(--font-ui);
+}
+
+.privacy-note a {
+  color: inherit;
+  text-underline-offset: var(--space-2);
+}
+
+/* ---------- Buttons and dropdowns ---------- */
+
+button,
+select,
+.button,
+.file-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-8);
-  font-size: 13px;
-}
-
-.select-label {
-  color: var(--text-muted);
-}
-
-.checkbox-label {
+  height: var(--control-height);
+  margin: 0;
+  padding: 0 var(--space-12);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font: 500 13px/16px var(--font-ui);
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
 }
 
-.checkbox-label input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: var(--accent);
-}
-
-.separator {
-  width: 1px;
-  height: 24px;
-  background: var(--border);
-}
-
-kbd {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  border-radius: var(--radius-small);
-  background: var(--surface-sunken);
-  color: var(--text-muted);
-  font: 500 11px var(--font-code);
-}
-
-/* ---------- Buttons and inputs ---------- */
-
-button,
-select,
-.file-button {
-  box-sizing: border-box;
-  height: var(--control-height);
-  padding: 0 var(--space-12);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  font: 500 13px/1 var(--font-ui);
-  cursor: pointer;
-}
-
-/* The browser's own dropdown arrow sits in a different place in every browser,
-   so it is hidden and .select-control draws a chevron with a fixed gap instead. */
-select {
-  appearance: none;
-  padding-right: var(--space-32);
-}
-
-.select-control {
-  position: relative;
-  display: inline-flex;
-}
-
-.select-control::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: var(--space-12);
-  width: 8px;
-  height: 8px;
-  box-sizing: border-box;
-  border-right: 1.5px solid var(--text-muted);
-  border-bottom: 1.5px solid var(--text-muted);
-  transform: translateY(-75%) rotate(45deg);
-  pointer-events: none;
+/* A leading icon sits a little closer to the edge than a label does */
+button > .icon:first-child,
+.button > .icon:first-child,
+.file-button > .icon:first-child {
+  margin-left: calc(-1 * var(--space-2));
 }
 
 button:hover,
 select:hover,
+.button:hover,
 .file-button:hover {
-  border-color: var(--text-faint);
+  background: var(--surface-hover);
 }
 
+/* Keyboard focus: a solid ring in the ink colour, with yellow filling the gap */
 button:focus-visible,
 select:focus-visible,
-textarea:focus-visible,
 summary:focus-visible,
-input[type="checkbox"]:focus-visible,
+a:focus-visible,
 .file-button:focus-within,
 .tree-key:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: var(--space-2);
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-width);
+  box-shadow: 0 0 0 var(--focus-width) var(--accent);
 }
 
-.primary {
-  border-color: var(--accent);
+/* Format: the main action, filled yellow (Tony's choice; the design system keeps yellow for "on" only) */
+.main-action,
+.main-action:hover {
+  border-color: var(--border);
   background: var(--accent);
   color: var(--accent-text);
 }
 
-.primary:hover {
-  border-color: var(--accent);
-  filter: brightness(1.06);
+.main-action:hover {
+  filter: brightness(1.05);
 }
 
+/* The error card's Repair JSON, the only ink-filled button */
+.primary,
+.primary:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.primary:hover {
+  opacity: 0.88;
+}
+
+/* Links that leave the tool: Shortcuts, GitHub */
 .ghost {
-  padding-inline: var(--space-8);
   border-color: transparent;
   background: transparent;
   color: var(--text-muted);
 }
 
 .ghost:hover {
-  border-color: var(--border);
+  background: var(--surface);
   color: var(--text);
+}
+
+/* A toggle that is on: yellow means on */
+button[aria-pressed="true"],
+button[aria-pressed="true"]:hover {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* The toggle's icon changes to a check when it is on */
+button[aria-pressed="true"] .when-off,
+button[aria-pressed="false"] .when-on {
+  display: none;
+}
+
+.icon-only {
+  width: var(--control-height);
+  padding: 0;
+}
+
+.icon-only > .icon:first-child {
+  margin-left: 0;
+}
+
+/* Buttons inside the path bar and the toast */
+.small {
+  height: var(--chip-height);
+  padding: 0 var(--space-8);
+}
+
+button:disabled,
+select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background: var(--surface);
+  filter: none;
+}
+
+.main-action:disabled:hover {
+  background: var(--accent);
 }
 
 /* A label styled as a button, with the real file input invisible on top of it */
 .file-button {
   position: relative;
-  display: inline-flex;
-  align-items: center;
 }
 
 .file-button input {
@@ -362,178 +425,201 @@ input[type="checkbox"]:focus-visible,
   cursor: pointer;
 }
 
-/* ---------- Panes ---------- */
-
-.panes {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-16);
+/* The browser's own dropdown arrow sits in a different place in every browser,
+   so it is hidden and .select-control draws the chevron icon instead. */
+select {
+  appearance: none;
+  padding-right: var(--space-32);
 }
 
-.pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  height: clamp(384px, calc(100vh - 192px), 896px);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.pane.is-dragging {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 var(--space-4) var(--accent-soft);
-}
-
-.pane-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-8);
-  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-sunken);
-}
-
-.pane-title {
-  display: flex;
+.select-label {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-8);
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font: 500 13px/16px var(--font-ui);
 }
 
-.pane-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
+.select-control {
+  position: relative;
+  display: inline-flex;
+  flex: none;
 }
 
-.badge {
-  padding: var(--space-2) var(--space-8);
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font: 500 11px var(--font-ui);
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-textarea {
-  box-sizing: border-box;
-  flex: 1;
-  width: 100%;
-  min-height: 0;
-  margin: 0;
-  padding: var(--space-12) var(--space-16);
-  overflow: auto;
-  border: 0;
-  background: transparent;
+.select-control > .icon {
+  position: absolute;
+  top: 50%;
+  right: var(--space-8);
   color: var(--text);
-  font: 13px/var(--code-line-height) var(--font-code);
-  white-space: pre;
-  tab-size: 2;
-  resize: none;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-textarea::placeholder {
-  color: var(--text-faint);
+/* The theme button shows where a press leads: a moon while light, a sun while dark */
+.theme-button .when-dark,
+:root[data-theme="dark"] .theme-button .when-light {
+  display: none;
 }
 
-textarea:focus-visible {
-  outline-offset: calc(-1 * var(--space-2));
+:root[data-theme="dark"] .theme-button .when-dark {
+  display: block;
 }
 
-/* A row of buttons where one is chosen: the result tabs and the theme switch */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-button .when-light {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .theme-button .when-dark {
+    display: block;
+  }
+}
+
+/* ---------- Segmented control: Text · Tree ---------- */
+
 .segmented-control {
-  box-sizing: border-box;
-  display: flex;
+  display: inline-flex;
+  flex: none;
   gap: var(--space-2);
   height: var(--control-height);
   padding: var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
 }
 
 .segmented-control button {
   height: 100%;
-  padding: 0 var(--space-12);
   border: 0;
-  border-radius: var(--radius-small);
   background: transparent;
-  color: var(--text-muted);
 }
 
 .segmented-control button:hover {
-  color: var(--text);
+  background: var(--surface-hover);
 }
 
-.segmented-control button[aria-selected="true"],
-.segmented-control button[aria-pressed="true"] {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+/* Yellow fill plus an ink outline, so the choice does not depend on telling yellow from white */
+.segmented-control button[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 var(--border-width) var(--border);
 }
 
-.result-view {
+.segmented-control button:focus-visible {
+  box-shadow: inset 0 0 0 var(--border-width) var(--border), 0 0 0 var(--focus-width) var(--accent);
+}
+
+/* ---------- The field ---------- */
+
+.pane {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-pane);
+  background: var(--surface);
+}
+
+/* The field you are typing in */
+.pane:focus-within {
+  box-shadow: 0 0 0 var(--focus-width) var(--accent);
+}
+
+/* A file is being dragged over the page */
+.pane.is-dragging {
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 var(--space-4) var(--accent);
+}
+
+/* The editor scrolls as one: line numbers on the left, and on the right a transparent textarea
+   laid exactly over the coloured copy of the same text. Both share one grid cell, so the copy
+   decides the size and the textarea never scrolls on its own. */
+.editor {
+  display: grid;
+  flex: 1;
+  grid-template-columns: var(--gutter-width) minmax(0, 1fr);
   min-height: 0;
   overflow: auto;
 }
 
-/* ---------- Formatted code ---------- */
-
-.code {
-  min-width: max-content;
+.editor-gutter,
+.editor-highlight,
+.editor-input {
   margin: 0;
-  padding: var(--space-12) var(--space-16) var(--space-12) 0;
-  color: var(--text);
-  font: 13px/var(--code-line-height) var(--font-code);
-  tab-size: 4;
-  counter-reset: line-number;
-}
-
-/* Each line leaves room on the left for its number: a 40px column plus a 16px gap */
-.code-line {
-  position: relative;
-  display: block;
-  padding-left: 56px;
+  padding-block: var(--space-12);
+  font: 400 13px/var(--code-line-height) var(--font-code);
+  font-variant-ligatures: none;
+  tab-size: 2;
   white-space: pre;
 }
 
-.code-line::before {
-  content: counter(line-number);
-  counter-increment: line-number;
-  position: absolute;
+.editor-gutter {
+  position: sticky;
   left: 0;
-  width: 40px;
+  z-index: 1;
+  padding-right: var(--space-8);
+  background: var(--surface);
   color: var(--text-faint);
   text-align: right;
   font-variant-numeric: tabular-nums;
   user-select: none;
 }
 
-/* Minified output: wrap the single long line instead of scrolling sideways */
-.code.is-wrapped {
+.editor-gutter > span,
+.editor-highlight > span {
+  display: block;
+}
+
+.editor-gutter > .has-error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.editor-stack {
+  display: grid;
   min-width: 0;
 }
 
-.code.is-wrapped .code-line {
-  white-space: pre-wrap;
-  word-break: break-all;
+.editor-highlight,
+.editor-input {
+  grid-area: 1 / 1;
+  min-width: 100%;
+  padding-inline: var(--space-8) var(--space-16);
 }
 
-/* Very large output is shown as plain text without line numbers */
-.code.is-plain {
-  padding-left: var(--space-16);
-  white-space: pre;
+.editor-highlight {
+  color: var(--text);
+  pointer-events: none;
+}
+
+.editor-highlight > .has-error {
+  background: var(--danger-soft);
+}
+
+.editor-input {
+  height: 100%;
+  overflow: hidden;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--text);
+  resize: none;
+}
+
+.editor-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Very large input: no colours, the textarea shows its own text */
+.editor.is-plain .editor-input {
+  color: var(--text);
+}
+
+.editor.is-plain .editor-highlight {
+  visibility: hidden;
 }
 
 .token-key { color: var(--token-key); }
@@ -543,15 +629,73 @@ textarea:focus-visible {
 .token-null { color: var(--token-null); font-style: italic; }
 .token-punctuation { color: var(--token-punctuation); }
 
+/* ---------- Error card, at the bottom of the field ---------- */
+
+.error-card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-12);
+  max-height: 50%;
+  margin: var(--space-12);
+  padding: var(--space-16);
+  overflow: auto;
+  border: var(--border-width) solid var(--danger);
+  border-radius: var(--radius-card);
+  background: var(--danger-soft);
+}
+
+.error-card h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin: 0;
+  color: var(--danger);
+  font: 600 14px/20px var(--font-ui);
+}
+
+.error-card p {
+  margin: 0;
+  max-width: 72ch;
+}
+
+.error-card pre {
+  margin: 0;
+  padding: var(--space-8) var(--space-12);
+  overflow-x: auto;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--text);
+  font: 400 12px/var(--code-line-height) var(--font-code);
+}
+
+.error-caret {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
 /* ---------- Tree ---------- */
+
+.tree-view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
 
 .tree {
   padding: var(--space-12) var(--space-16) var(--space-16);
-  font: 13px/24px var(--font-code);
+  font: 400 13px/24px var(--font-code);
 }
 
 .tree summary {
   list-style: none;
+  border-radius: var(--radius-small);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -564,8 +708,8 @@ textarea:focus-visible {
 .tree summary::before {
   content: "▸";
   display: inline-block;
-  width: 16px;
-  color: var(--text-faint);
+  width: var(--space-16);
+  color: var(--text-muted);
   transition: transform 0.12s;
 }
 
@@ -576,7 +720,7 @@ textarea:focus-visible {
 .tree-children {
   margin-left: var(--space-4);
   padding-left: var(--space-16);
-  border-left: 1px dashed var(--border);
+  border-left: 1px dashed var(--border-subtle);
 }
 
 .tree-leaf {
@@ -584,15 +728,24 @@ textarea:focus-visible {
   white-space: nowrap;
 }
 
+/* The highlight is wider than the text, without moving the text */
 .tree-key {
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-small);
   color: var(--token-key);
   cursor: pointer;
 }
 
-.tree-key:hover,
-.selected > .tree-key {
+.tree-key:hover {
   background: var(--accent-soft);
+}
+
+/* The key whose path is shown in the path bar: yellow means selected */
+.selected > .tree-key,
+.selected > .tree-key.array-index {
+  background: var(--accent);
+  color: var(--accent-text);
 }
 
 .tree-key.array-index {
@@ -602,20 +755,20 @@ textarea:focus-visible {
 .child-count {
   margin: 0 var(--space-8);
   color: var(--text-faint);
-  font-family: var(--font-ui);
-  font-size: 12px;
+  font: 400 12px/16px var(--font-ui);
 }
 
 .path-bar {
   display: flex;
+  flex: none;
   align-items: center;
   gap: var(--space-8);
   min-width: 0;
-  padding: var(--space-8) var(--space-16);
-  border-top: 1px solid var(--border);
+  padding: var(--space-8) var(--space-12) var(--space-8) var(--space-16);
+  border-top: 1px solid var(--border-subtle);
   background: var(--surface-sunken);
   color: var(--text-muted);
-  font: 12px var(--font-code);
+  font: 400 12px/20px var(--font-ui);
 }
 
 .path-bar code {
@@ -623,122 +776,57 @@ textarea:focus-visible {
   min-width: 0;
   overflow-x: auto;
   color: var(--text);
+  font: 400 12px/20px var(--font-code);
   white-space: nowrap;
 }
 
-/* ---------- Messages ---------- */
-
-.empty-message,
-.error-card {
-  max-width: 60ch;
-  margin: var(--space-16);
-}
-
-.empty-message {
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.empty-message strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.error-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
-  padding: var(--space-16);
-  border: 1px solid var(--danger);
-  border-radius: var(--radius);
-  background: var(--danger-soft);
-}
-
-.error-card h2 {
-  margin: 0;
-  color: var(--danger);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.error-card p {
-  margin: 0;
-  line-height: 1.5;
-}
-
-.error-card pre {
-  margin: 0;
-  padding: var(--space-8) var(--space-12);
-  overflow-x: auto;
-  border-radius: var(--radius-small);
-  background: var(--surface);
-  color: var(--text);
-  font: 12.5px/var(--code-line-height) var(--font-code);
-}
-
-.error-caret {
-  color: var(--danger);
-  font-weight: 600;
-}
-
-.error-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-
-/* ---------- Status bar ---------- */
-
-.status-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-8) var(--space-16);
-  min-height: 24px;
-  color: var(--text-muted);
-  font-size: 13px;
-}
+/* ---------- Status row ---------- */
 
 .status-chip {
-  box-sizing: border-box;
   display: inline-flex;
+  flex: none;
   align-items: center;
-  gap: var(--space-8);
-  height: 24px;
-  padding: 0 var(--space-12) 0 var(--space-8);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--background);
+  gap: var(--space-4);
+  height: var(--chip-height);
+  padding: 0 var(--space-12);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-pill);
   color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
+  font: 500 13px/16px var(--font-ui);
+  white-space: nowrap;
 }
 
-.status-chip::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
+.status-chip .icon {
+  display: none;
+}
+
+.status-chip.is-valid,
+.status-chip.is-invalid {
+  padding-left: var(--space-4);
+  border-color: transparent;
 }
 
 .status-chip.is-valid {
-  border-color: transparent;
-  background: var(--success-soft);
-  color: var(--success);
+  background: var(--success-fill);
+  color: var(--on-success);
 }
 
 .status-chip.is-invalid {
-  border-color: transparent;
-  background: var(--danger-soft);
-  color: var(--danger);
+  background: var(--danger-fill);
+  color: var(--on-danger);
+}
+
+.status-chip.is-valid .when-valid,
+.status-chip.is-invalid .when-invalid {
+  display: block;
 }
 
 .stats {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4) var(--space-16);
+  color: var(--text-muted);
+  font: 400 13px/16px var(--font-ui);
   font-variant-numeric: tabular-nums;
 }
 
@@ -747,11 +835,22 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
-.shortcut-hint {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin-left: auto;
+/* "Line 3, column 12": a status you can press to jump to the error */
+.status-link,
+.status-link:hover {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: none;
+  color: var(--text);
+  font: 500 13px/16px var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: var(--space-2);
+}
+
+.status-link:hover {
+  color: var(--danger);
 }
 
 /* ---------- Toast ---------- */
@@ -760,12 +859,15 @@ textarea:focus-visible {
   position: fixed;
   left: 50%;
   bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: 40px;
   padding: var(--space-8) var(--space-16);
-  border-radius: var(--radius);
-  background: var(--text);
-  color: var(--background);
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--primary-text);
+  font: 500 13px/16px var(--font-ui);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, var(--space-8));
@@ -774,23 +876,109 @@ textarea:focus-visible {
 
 .toast.is-visible {
   opacity: 1;
+  pointer-events: auto;
   transform: translate(-50%, 0);
 }
 
-/* ---------- Small screens ---------- */
+/* With an Undo button, the button sits flush in the rounded end */
+.toast:has(button:not([hidden])) {
+  padding-right: var(--space-8);
+}
+
+.toast button,
+.toast button:hover {
+  border-color: var(--primary-text);
+  background: transparent;
+  color: var(--primary-text);
+}
+
+.toast button:focus-visible {
+  outline-color: var(--primary-text);
+}
+
+/* ---------- Shortcuts dialog ---------- */
+
+.dialog {
+  width: min(420px, calc(100vw - 2 * var(--space-16)));
+  padding: var(--space-24);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-pane);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.dialog h2 {
+  margin: 0 0 var(--space-16);
+  font: 600 16px/24px var(--font-ui);
+}
+
+.shortcut-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-12) var(--space-16);
+  align-items: center;
+  margin: 0 0 var(--space-24);
+}
+
+.shortcut-list dt {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.shortcut-list dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: 500 11px/16px var(--font-code);
+}
+
+/* ---------- Narrower windows ---------- */
+
+@media (max-width: 1099px) {
+  .brand-tagline {
+    display: none;
+  }
+}
 
 @media (max-width: 860px) {
-  .panes {
-    grid-template-columns: minmax(0, 1fr);
+  .app {
+    gap: var(--space-12);
+    padding-left: max(var(--space-16), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-16), env(safe-area-inset-right, 0px));
   }
 
-  .pane {
-    height: 60vh;
-    min-height: 320px;
+  .separator {
+    display: none;
   }
 
-  .separator,
-  .shortcut-hint {
+  /* Header links keep their icon and drop their label */
+  .app-header .ghost {
+    width: var(--control-height);
+    padding: 0;
+  }
+
+  .app-header .ghost > .icon {
+    margin: 0;
+  }
+
+  .app-header .ghost > span {
     display: none;
   }
 }

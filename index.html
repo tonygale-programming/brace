@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-o8gWdJGJYNkfwmSetTqCNMDctB5SNqVK7Cjjqb65XDk='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-TLEfmbtyFvBDv4ak8e05Ms4u6mVC2AM91eyY+zWtgO8='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -27,8 +27,8 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#f1f3f6" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f1217" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#e3e4e8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#17181c" media="(prefers-color-scheme: dark)">
 
   <script>
     // Apply a saved Light or Dark choice before the page draws, so it never flashes
@@ -46,127 +46,149 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-09.5">
+  <link rel="stylesheet" href="styles.css?v=2026-11-12.2">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-09.5",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-09.5",
-        "./js/result-panel.js": "./js/result-panel.js?v=2026-11-09.5",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-09.5",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-09.5",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-09.5",
-        "./js/storage.js": "./js/storage.js?v=2026-11-09.5",
-        "./js/html.js": "./js/html.js?v=2026-11-09.5",
-        "./js/theme.js": "./js/theme.js?v=2026-11-09.5",
-        "./js/offline.js": "./js/offline.js?v=2026-11-09.5"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-12.2",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-12.2",
+        "./js/editor.js": "./js/editor.js?v=2026-11-12.2",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-12.2",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-12.2",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-12.2",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-12.2",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-12.2",
+        "./js/download.js": "./js/download.js?v=2026-11-12.2",
+        "./js/storage.js": "./js/storage.js?v=2026-11-12.2",
+        "./js/html.js": "./js/html.js?v=2026-11-12.2",
+        "./js/theme.js": "./js/theme.js?v=2026-11-12.2",
+        "./js/offline.js": "./js/offline.js?v=2026-11-12.2"
       }
     }
   </script>
 </head>
 <body>
+  <!-- Icons are Lucide (https://lucide.dev, ISC license, see icons/LUCIDE-LICENSE.txt).
+       data-lucide names the icon, so it can be swapped by copying another one from lucide.dev. -->
   <div class="app">
     <header class="app-header">
       <div class="brand">
-        <h1><b>{</b>brace<b>}</b></h1>
-        <p>
-          Format, validate and repair JSON.
-          <span class="privacy-note">Private: nothing you paste leaves this browser.</span>
-          <a href="https://github.com/tonygale-programming/brace#privacy" target="_blank" rel="noopener">How?</a>
-        </p>
+        <h1 class="brand-mark">{brace}</h1>
+        <p class="brand-tagline">Format, validate and repair JSON.</p>
+        <span class="privacy-note">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Private: nothing leaves this browser.
+            <a href="https://github.com/tonygale-programming/brace#privacy" target="_blank" rel="noopener">How?</a></span>
+        </span>
       </div>
-
-      <div class="toolbar" role="toolbar" aria-label="Formatting options">
-        <label class="select-label" for="indent-select">
-          Indent
-          <span class="select-control">
-            <select id="indent-select">
-              <option value="2">2 spaces</option>
-              <option value="4">4 spaces</option>
-              <option value="tab">Tabs</option>
-            </select>
-          </span>
-        </label>
-        <label class="checkbox-label" for="sort-keys-checkbox">
-          <input type="checkbox" id="sort-keys-checkbox">
-          Sort keys
-        </label>
-        <span class="separator" aria-hidden="true"></span>
-        <div class="button-group">
-          <button type="button" class="primary" id="format-button">Format</button>
-          <button type="button" id="minify-button">Minify</button>
-          <button type="button" id="stringify-button"
-            title="Turn the JSON into one escaped string, ready to paste into code or a config value">Stringify</button>
-        </div>
-        <span class="separator" aria-hidden="true"></span>
-        <div class="segmented-control" role="group" aria-label="Colour theme">
-          <button type="button" data-theme-choice="auto" aria-pressed="true" title="Follow your system setting">Auto</button>
-          <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
-          <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
-        </div>
-      </div>
+      <span class="toolbar-gap"></span>
+      <nav class="toolbar" aria-label="About">
+        <button type="button" class="ghost" id="shortcuts-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="keyboard"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg><span>Shortcuts</span></button>
+        <a class="button ghost" href="https://github.com/tonygale-programming/brace" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="code"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg><span>GitHub</span></a>
+        <button type="button" class="icon-only theme-button" id="theme-button"
+          aria-label="Switch between light and dark" title="Switch between light and dark"><svg class="icon when-light" viewBox="0 0 24 24" aria-hidden="true" data-lucide="moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg class="icon when-dark" viewBox="0 0 24 24" aria-hidden="true" data-lucide="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+      </nav>
     </header>
 
-    <main class="panes">
-      <section class="pane" id="input-pane" aria-label="Input">
-        <div class="pane-header">
-          <div class="pane-title">
-            Input
-            <span class="badge" id="sample-badge" hidden>Example data</span>
-          </div>
-          <div class="pane-actions">
-            <label class="file-button ghost">
-              Open file
-              <input type="file" id="file-input" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
-            </label>
-            <button type="button" class="ghost" id="sample-button">Sample</button>
-            <button type="button" class="ghost" id="repair-button"
-              title="Fix trailing commas, single quotes, comments, missing quotes and more">Repair</button>
-            <button type="button" class="ghost" id="clear-button">Clear</button>
-          </div>
-        </div>
-        <textarea id="json-input" spellcheck="false" autocomplete="off" autocapitalize="off"
-          aria-label="JSON input" placeholder="Paste JSON here, or drop a .json file"></textarea>
-      </section>
+    <div class="toolbar" role="toolbar" aria-label="Change the JSON">
+      <button type="button" class="main-action" id="format-button" title="Indent the JSON so it is easy to read"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="braces"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>Format</button>
+      <button type="button" id="minify-button" title="Put the JSON on one line, without spaces"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="minimize-2"><path d="m14 10 7-7"/><path d="M20 10h-6V4"/><path d="m3 21 7-7"/><path d="M4 14h6v6"/></svg>Minify</button>
+      <button type="button" id="stringify-button" title="Turn the JSON into one escaped string, ready to paste into code"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="quote"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>Stringify</button>
+      <span class="separator" aria-hidden="true"></span>
+      <label class="select-label" for="indent-select">
+        Indent
+        <span class="select-control">
+          <select id="indent-select">
+            <option value="2">2 spaces</option>
+            <option value="4">4 spaces</option>
+            <option value="tab">Tabs</option>
+          </select>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </label>
+      <button type="button" id="sort-keys-button" aria-pressed="false"><svg class="icon when-off" viewBox="0 0 24 24" aria-hidden="true" data-lucide="arrow-down-a-z"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M20 8h-5"/><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10"/><path d="M15 14h5l-5 6h5"/></svg><svg class="icon when-on" viewBox="0 0 24 24" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg>Sort keys</button>
+    </div>
 
-      <section class="pane" aria-label="Result">
-        <div class="pane-header">
-          <div class="segmented-control" role="tablist" aria-label="Result view">
-            <button type="button" role="tab" id="text-tab" aria-selected="true" aria-controls="text-view">Text</button>
-            <button type="button" role="tab" id="tree-tab" aria-selected="false" aria-controls="tree-view">Tree</button>
-          </div>
-          <div class="pane-actions">
-            <span id="tree-actions" hidden>
-              <button type="button" class="ghost" id="expand-button">Expand all</button>
-              <button type="button" class="ghost" id="collapse-button">Collapse</button>
-            </span>
-            <button type="button" id="copy-button">Copy</button>
-          </div>
-        </div>
+    <div class="toolbar" role="toolbar" aria-label="Input and view">
+      <label class="file-button">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="file-json"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"/><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"/></svg>Open file
+        <input type="file" id="file-input" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
+      </label>
+      <button type="button" id="sample-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Sample</button>
+      <span class="separator" aria-hidden="true"></span>
+      <div class="segmented-control" role="tablist" aria-label="View">
+        <button type="button" role="tab" id="text-tab" aria-selected="true" aria-controls="editor">Text</button>
+        <button type="button" role="tab" id="tree-tab" aria-selected="false" aria-controls="tree-view">Tree</button>
+      </div>
+      <span id="tree-actions" class="toolbar" hidden>
+        <button type="button" id="expand-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="chevrons-up-down"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>Expand all</button>
+        <button type="button" id="collapse-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="chevrons-down-up"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg>Collapse</button>
+      </span>
+      <span class="toolbar-gap"></span>
+      <button type="button" id="repair-button"
+        title="Fix trailing commas, single quotes, comments, missing quotes and more"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>Repair</button>
+      <button type="button" id="clear-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="eraser"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg>Clear</button>
+    </div>
 
-        <div class="result-view" id="text-view" role="tabpanel" aria-labelledby="text-tab">
-          <pre class="code" id="formatted-code"></pre>
+    <main class="pane" id="editor-pane">
+      <div class="editor" id="editor" role="tabpanel" aria-labelledby="text-tab">
+        <div class="editor-gutter" id="editor-gutter" aria-hidden="true"></div>
+        <div class="editor-stack">
+          <pre class="editor-highlight" id="editor-highlight" aria-hidden="true"></pre>
+          <textarea class="editor-input" id="json-input" spellcheck="false" autocomplete="off" autocapitalize="off"
+            aria-label="JSON" placeholder="Paste JSON here, or drop a .json file anywhere on the page"></textarea>
         </div>
-        <div class="result-view" id="tree-view" role="tabpanel" aria-labelledby="tree-tab" hidden>
-          <div class="tree" id="tree-root"></div>
-        </div>
+      </div>
 
-        <div class="path-bar" id="path-bar" hidden>
-          <span>Path</span>
-          <code id="selected-path">$</code>
-          <button type="button" class="ghost" id="copy-path-button">Copy path</button>
+      <div class="tree-view" id="tree-view" role="tabpanel" aria-labelledby="tree-tab" hidden>
+        <div class="tree" id="tree-root"></div>
+      </div>
+      <div class="path-bar" id="path-bar" hidden>
+        <span>Path</span>
+        <code id="selected-path">$</code>
+        <button type="button" class="small" id="copy-path-button">Copy path</button>
+        <button type="button" class="small" id="copy-value-button">Copy value</button>
+      </div>
+
+      <div class="error-card" id="error-card" role="alert" hidden>
+        <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="circle-alert"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span id="error-title"></span></h2>
+        <p id="error-message"></p>
+        <pre id="error-snippet"></pre>
+        <div class="error-actions">
+          <button type="button" class="primary" id="error-repair-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>Repair JSON</button>
+          <button type="button" id="error-show-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Show in input</button>
         </div>
-      </section>
+      </div>
     </main>
 
-    <div class="status-bar" aria-live="polite">
-      <span class="status-chip" id="status-chip">Waiting for input</span>
+    <div class="toolbar status-bar" aria-live="polite">
+      <span class="status-chip" id="status-chip"><svg class="icon when-valid" viewBox="0 0 24 24" aria-hidden="true" data-lucide="circle-check"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg><svg class="icon when-invalid" viewBox="0 0 24 24" aria-hidden="true" data-lucide="circle-alert"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span id="status-label">Waiting for input</span></span>
       <span class="stats" id="stats"></span>
-      <span class="shortcut-hint"><kbd id="modifier-key">Ctrl</kbd><kbd>Enter</kbd> format</span>
+      <button type="button" class="status-link" id="error-position" hidden></button>
+      <span class="toolbar-gap"></span>
+      <span class="button-group">
+        <button type="button" id="download-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Download</button>
+        <button type="button" id="copy-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button>
+      </span>
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status"></div>
+  <div class="toast" id="toast" role="status">
+    <span id="toast-message"></span>
+    <button type="button" class="small" id="toast-action" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>Undo</button>
+  </div>
+
+  <dialog class="dialog" id="shortcuts-dialog" aria-labelledby="shortcuts-title">
+    <h2 id="shortcuts-title">Keyboard shortcuts</h2>
+    <dl class="shortcut-list">
+      <dt><kbd class="modifier-key">Ctrl</kbd><kbd>Enter</kbd></dt><dd>Format</dd>
+      <dt><kbd class="modifier-key">Ctrl</kbd><kbd>Shift</kbd><kbd>Enter</kbd></dt><dd>Minify</dd>
+      <dt><kbd class="modifier-key">Ctrl</kbd><kbd>Z</kbd></dt><dd>Undo the last change</dd>
+      <dt><kbd>?</kbd></dt><dd>Show this list</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close it</dd>
+    </dl>
+    <button type="button" id="shortcuts-close-button">Close</button>
+  </dialog>
 
   <!-- Libraries, served from this site and pinned with integrity hashes.
        lossless-json keeps numbers exact; jsonrepair powers the Repair button. -->
@@ -176,6 +198,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-09.5"></script>
+  <script type="module" src="js/main.js?v=2026-11-12.2"></script>
 </body>
 </html>
