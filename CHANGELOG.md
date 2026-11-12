@@ -3,14 +3,35 @@
 What changed in Brace, day by day. Newest first. Each day lists what people using the site would notice,
 then changes behind the scenes. Release versions match the `?v=` value in `index.html`.
 
-## Upcoming
-
-- Redesign based on the Brace design system
-  ([design system](https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh), made from a Figma draft).
-
 ## 12 November 2026
 
+Release `2026-11-12.2`.
+
+**New look** (from the [Brace design system](https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh))
+- **One field** instead of two panes: paste, then Format, Minify or Stringify change the text in place.
+  `Ctrl/⌘ + Z` goes back.
+- Grey page, white field with a black outline, rounded pill buttons, Lucide icons, yellow for the main
+  action (Format) and for anything selected.
+- Line numbers and coloured JSON right in the field you type in; the line with an error is marked.
+- One theme button (moon / sun) instead of Auto / Light / Dark. A first visit follows the system setting.
+- The status chip says Valid or Invalid with an icon, not by colour alone.
+
+**New**
+- Pasting into an empty field formats it straight away.
+- Format and Minify undo a Stringify.
+- Changing Indent or Sort keys applies at once.
+- **Download** saves the JSON as a file.
+- **Undo** button after Clear, Sample and Repair.
+- **Copy value** next to Copy path in the tree.
+- The error's line and column in the status row jump to the error when pressed.
+- Drop a file anywhere on the page.
+- **Shortcuts** list (press `?`).
+- Buttons that can't do anything right now are disabled, instead of explaining after the click.
+- Clearer error for keys without quotes: `write "notes" instead of notes`.
+
 **Behind the scenes**
+- New modules: `editor.js`, `error-card.js`, `status-bar.js`, `download.js`; `result-panel.js` removed.
+- `CHANGELOG.md` (this file).
 - Created the Brace design system from the Figma draft: colours, Roboto type, spacing, rounded
   pill controls, a two-column screen layout and the states the draft did not show yet.
 - Added `CLAUDE.md` so future Claude sessions know the project's rules.

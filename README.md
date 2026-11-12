@@ -20,18 +20,21 @@ There are dozens of online JSON formatters. Brace makes three promises:
 
 ## Features
 
-- Format with 2 spaces, 4 spaces or tabs, or minify to one line
+- **One field**: paste, then **Format** (2 spaces, 4 spaces or tabs), **Minify** or **Stringify** rewrite it in place; `Ctrl/⌘ + Z` goes back
+- Pasting into an empty field formats it straight away
+- Line numbers and coloured JSON in the field itself; the line with an error is marked
 - **Stringify**: turn the JSON into one escaped string (`{"a":1}` becomes `"{\"a\":1}"`), ready to paste into code, an environment variable or a request body
 - Optional key sorting
 - Validation with the exact line and column of each error, and a plain explanation
 - **Repair**: fixes trailing commas, single quotes, comments, unquoted keys, missing commas, Python-style `True`/`None` and more (undo with `Ctrl/⌘ + Z`)
 - **Exact numbers**: large IDs like `12345678901234567890` and values like `129.0` stay exactly as written instead of being rounded
 - Catches duplicate keys with conflicting values, which most tools accept silently
-- Collapsible tree view; click a key to get its path (for example `$.order.items[0].sku`)
-- Open or drag in a `.json` file, copy the result
-- Light and dark themes: **Auto** follows your system setting, or pick **Light** or **Dark** (remembered in your browser)
+- Tree view; click a key to copy its path (for example `$.order.items[0].sku`) or its value
+- Open a file or drop it anywhere on the page; **Download** the result as a `.json` file, or **Copy** it
+- **Undo** button after Clear, Sample and Repair
+- Light and dark themes: a first visit follows your system setting; the theme button switches and remembers it
 - **Works offline** and can be installed as an app (in Chrome or Edge: the install icon in the address bar)
-- Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies
+- Shortcuts: `Ctrl/⌘ + Enter` formats, `Ctrl/⌘ + Shift + Enter` minifies, `?` lists them all
 
 ## Privacy
 
@@ -65,17 +68,20 @@ js/
   main.js               entry point: connects the controls to everything below
   json-engine.js        parse, format, sort and repair JSON (wraps the two libraries)
   syntax-checker.js     finds the first syntax error and explains it in plain words
-  result-panel.js       draws the result pane: empty state, error card or output
-  highlighter.js        colours formatted JSON and adds line numbers
+  editor.js             the one field: line numbers and coloured JSON under a transparent textarea
+  error-card.js         the card that explains an error, at the bottom of the field
+  status-bar.js         the Valid / Invalid chip and the figures under the field
+  highlighter.js        colours one line of JSON
   tree-view.js          the collapsible tree and key paths
   notifications.js      toast messages and copying to the clipboard
   storage.js            remembers settings and the last input in this browser
-  theme.js              the Auto / Light / Dark switch
+  theme.js              the light / dark theme button
+  download.js           saves the JSON as a file, made inside the browser
   offline.js            registers the service worker
   html.js               escapes text before it goes into HTML
 vendor/                 lossless-json and jsonrepair, copied unchanged from npm
 fonts/                  IBM Plex Sans and Mono (Latin), with their license
-icons/                  app icons and the link preview image
+icons/                  app icons, the link preview image and the Lucide icon license
 scripts/release.py      prepares a release (see Releasing)
 ```
 
@@ -92,7 +98,7 @@ Opening `index.html` directly from disk will show the page without any behaviour
 
 ## Releasing
 
-Run this before every push that changes the site:
+Before every push that changes the site, add what changed to `CHANGELOG.md`, then run:
 
 ```bash
 python3 scripts/release.py
@@ -149,12 +155,17 @@ If a library fails to load, the page still works: it falls back to the browser's
 
 Fonts: [IBM Plex](https://github.com/IBM/plex) Sans and Mono, under the SIL Open Font License (`fonts/OFL.txt`).
 
+Icons: [Lucide](https://lucide.dev) 1.64.0, under the ISC license (`icons/LUCIDE-LICENSE.txt`), inlined in `index.html`.
+Each icon has a `data-lucide` attribute with its name, so it can be swapped by copying another one from lucide.dev.
+
+Design: the [Brace design system](https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh) sets the colours, shapes and layout.
+
 Works in current Chrome, Edge, Firefox and Safari. The colour themes use CSS `light-dark()`, which needs
 browsers from 2024 or later (Chrome 123, Firefox 120, Safari 17.5).
 
-## Roadmap
+## History and roadmap
 
-Planned improvements, ideas, and the ideas we decided against: see [ROADMAP.md](ROADMAP.md).
+What changed and when: see [CHANGELOG.md](CHANGELOG.md). Planned improvements, ideas, and the ideas we decided against: see [ROADMAP.md](ROADMAP.md).
 
 ## License
 

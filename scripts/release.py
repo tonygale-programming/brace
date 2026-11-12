@@ -24,6 +24,7 @@ import sys
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX_FILE = PROJECT_ROOT / 'index.html'
 SERVICE_WORKER_FILE = PROJECT_ROOT / 'service-worker.js'
+CHANGELOG_FILE = PROJECT_ROOT / 'CHANGELOG.md'
 MODULES_FOLDER = PROJECT_ROOT / 'js'
 ENTRY_MODULE = 'main.js'
 
@@ -93,6 +94,14 @@ def main():
     SERVICE_WORKER_FILE.write_text(service_worker, encoding='utf-8')
     print(f'Release {new_version}: updated {url_count} file URLs, the service worker '
           f'and {hash_count} inline script hashes.')
+    warn_if_changelog_has_no_entry_for_today()
+
+
+def warn_if_changelog_has_no_entry_for_today():
+    today = datetime.date.today()
+    heading = f'## {today.day} {today.strftime("%B %Y")}'  # for example "## 12 November 2026"
+    if heading not in CHANGELOG_FILE.read_text(encoding='utf-8'):
+        print(f'Reminder: CHANGELOG.md has no "{heading}" entry yet. Add what changed before you push.')
 
 
 if __name__ == '__main__':

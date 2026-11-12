@@ -20,22 +20,18 @@ Each is small (S = an hour or two, M = about a day).
 
 | Idea | Why it helps | How, simply | Size |
 |---|---|---|---|
-| **Download as file** | Save the result without copy, new file, paste | A "Download" button next to Copy. Saves the current output (formatted, minified or stringified) as a `.json` file through a temporary blob link. Reuses the opened file's name if there was one, otherwise `brace.json` | S |
-| **Undo Clear** | Clear wipes the input and the saved draft with one click | After Clear, the toast says "Cleared" with an **Undo** button for a few seconds. Needs the toast to support one action button, which other features can reuse | S |
-| **Copy a value from the tree** | Today you can copy a key's path, but not its value | In the path bar, add "Copy value" next to "Copy path": copies the selected node as formatted JSON | S |
 | **Remember the output mode** | Someone who always minifies has to click Minify every visit | Save Format / Minify / Stringify like the indent setting already is | S |
-| **Drop a file anywhere** | Today a file must be dropped exactly on the input pane | Accept drops on the whole page, with the same highlight on the input pane | S |
 | **Expand to level 1, 2, 3** | "Expand all" on big data is too much; "Collapse" is too little | Replace the two tree buttons with a small segmented control: 1 · 2 · 3 · All | S |
 | **Wrap long lines** | Long string values push the formatted view far to the right | A "Wrap" toggle in the result header. CSS already exists for wrapped lines (used by Minify) | S |
-| **Keyboard shortcuts list** | Shortcuts exist but nobody discovers them | Pressing `?` opens a small panel listing them; the status bar hint links to it | S |
-| **Show the error from the status bar** | When the input is invalid, the status line says where, but you can't act on it | Make "Error at line 3, col 12" a button that does the same as "Show in input" | S |
 | **Text size** | Small screens and presentations need bigger code text | `A−` / `A+` in the result header changes one CSS variable for code size; remembered like the theme | S |
-| **Input / Result tabs on phones** | On a phone the two panes are stacked and the result is far below | Under 860px wide, show the two panes as tabs instead of stacked | M |
+
+## Done
+
+Built in the 12 November 2026 redesign (see CHANGELOG.md): Download as file, Undo Clear, Copy a value from the tree, Drop a file anywhere, Keyboard shortcuts list, Show the error from the status bar. Input / Result tabs on phones are no longer needed, because there is only one field.
 
 ## Phase 2: messy real-world JSON
 
-- **JSON inside a string**: when the input is an escaped string like `"{\"a\":1}"` (the reverse of Stringify),
-  offer "Unwrap" to turn it back into JSON
+- **JSON inside a string**: Format already unwraps what Stringify made; still to do: JSON strings nested inside values
 - **JSON Lines**: one JSON object per line (common in logs); format each line, show errors per line
 - **Secret detection**: notice AWS keys, GitHub tokens, private keys and JWTs, and show a calm note that they stay on this device
 - **Search in the tree**: a filter box that shows only matching keys and values

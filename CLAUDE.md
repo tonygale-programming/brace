@@ -9,6 +9,19 @@ Plain HTML, CSS and JavaScript modules, no build step, no server.
 - Repo: https://github.com/tonygale-programming/brace (public, MIT)
 - `README.md` covers features, privacy, file structure, releasing and code style. Read it first.
 - `ROADMAP.md` holds the ideas waiting to be built, the rules for accepting ideas, and the "Not doing" list.
+- `CHANGELOG.md` is the day-by-day history. Add an entry for every release.
+- The look follows Tony's design system: https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh
+
+## Tony's design decisions (these override the design system)
+
+- **One field**, no separate result pane: Format / Minify / Stringify rewrite the text in place, undoably.
+- **Format, Minify, Stringify are three buttons**; Format is filled yellow as the main action. Elsewhere
+  yellow means "on" or "selected".
+- **Copy and Download are outlined**, not filled. The only ink-filled button is Repair JSON in the error card.
+- **One theme button** (moon / sun); a first visit follows the system setting.
+- **IBM Plex fonts** for now; Roboto (from the design system) is still to decide.
+- **Lucide icons**, inlined as SVG with a `data-lucide` name. Lucide has no brand logos, so GitHub uses `code`.
+- Keep it simple: "less is more". Prefer fewer controls and disabled states over extra screens or messages.
 
 ## Positioning (why decisions go the way they do)
 
