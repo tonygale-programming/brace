@@ -21,6 +21,9 @@ Plain HTML, CSS and JavaScript modules, no build step, no server.
 - **One theme button** (moon / sun); a first visit follows the system setting.
 - **IBM Plex fonts** for now; Roboto (from the design system) is still to decide.
 - **Lucide icons**, inlined as SVG with a `data-lucide` name. Lucide has no brand logos, so GitHub uses `code`.
+- **Details:** 16px icons with a 1.5px line (Lucide stroke 2.25); buttons 12px left, 8px icon gap, 16px right;
+  focus is a 1.5px yellow ring with a 1.5px gap; dark-mode yellow is `#664C00` with white text; the status chip
+  uses a dot, not an icon; the logo is `{brace}` with Lucide's braces; no privacy line in the header (for now).
 - Keep it simple: "less is more". Prefer fewer controls and disabled states over extra screens or messages.
 
 ## Positioning (why decisions go the way they do)

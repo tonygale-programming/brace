@@ -45,9 +45,7 @@ const elements = {
   treeTab: getElement('tree-tab'),
   treeView: getElement('tree-view'),
   treeRoot: getElement('tree-root'),
-  treeActions: getElement('tree-actions'),
-  expandButton: getElement('expand-button'),
-  collapseButton: getElement('collapse-button'),
+  expandToggle: getElement('expand-toggle'),
   pathBar: getElement('path-bar'),
   selectedPath: getElement('selected-path'),
   copyPathButton: getElement('copy-path-button'),
@@ -284,7 +282,7 @@ function showView(view) {
   elements.treeTab.setAttribute('aria-selected', String(isTree));
   elements.editor.hidden = isTree;
   elements.treeView.hidden = !isTree;
-  elements.treeActions.hidden = !isTree;
+  elements.expandToggle.hidden = !isTree;
   elements.pathBar.hidden = !isTree;
 
   // Rebuild the tree when it opens or the JSON changed under it; keep it while just switching back
@@ -292,6 +290,7 @@ function showView(view) {
     renderTree(elements.treeRoot, state.parsed.data);
     elements.treeRoot.dataset.source = editor.getText();
     elements.selectedPath.textContent = '$';
+    elements.expandToggle.setAttribute('aria-expanded', 'false');
     state.selectedValue = state.parsed.data;
   }
 }
@@ -312,9 +311,16 @@ function copySelectedValue() {
   copyToClipboard(text, 'Copied value', elements.selectedPath);
 }
 
-function expandWholeTree() {
-  const isComplete = expandAll(elements.treeRoot);
-  if (!isComplete) showToast(`Expanded the first ${EXPAND_ALL_LIMIT.toLocaleString()} nodes`);
+/** One button: Expand all, then Collapse all. Its label always says what the next press does. */
+function toggleTreeExpansion() {
+  const isExpanded = elements.expandToggle.getAttribute('aria-expanded') === 'true';
+  if (isExpanded) {
+    collapseAll(elements.treeRoot);
+  } else {
+    const isComplete = expandAll(elements.treeRoot);
+    if (!isComplete) showToast(`Expanded the first ${EXPAND_ALL_LIMIT.toLocaleString()} nodes`);
+  }
+  elements.expandToggle.setAttribute('aria-expanded', String(!isExpanded));
 }
 
 /* ---------- Download and Copy ---------- */
@@ -395,8 +401,7 @@ function bindEvents() {
 
   elements.textTab.addEventListener('click', () => showView('text'));
   elements.treeTab.addEventListener('click', () => showView('tree'));
-  elements.expandButton.addEventListener('click', expandWholeTree);
-  elements.collapseButton.addEventListener('click', () => collapseAll(elements.treeRoot));
+  elements.expandToggle.addEventListener('click', toggleTreeExpansion);
   elements.treeRoot.addEventListener('click', selectTreeKey);
   elements.treeRoot.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') selectTreeKey(event);

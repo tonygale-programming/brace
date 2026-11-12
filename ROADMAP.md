@@ -21,7 +21,7 @@ Each is small (S = an hour or two, M = about a day).
 | Idea | Why it helps | How, simply | Size |
 |---|---|---|---|
 | **Remember the output mode** | Someone who always minifies has to click Minify every visit | Save Format / Minify / Stringify like the indent setting already is | S |
-| **Expand to level 1, 2, 3** | "Expand all" on big data is too much; "Collapse" is too little | Replace the two tree buttons with a small segmented control: 1 · 2 · 3 · All | S |
+| **Expand to level 1, 2, 3** | "Expand all" on big data is too much; "Collapse all" is too little | Give the Expand all button a small menu: 1 · 2 · 3 · All | S |
 | **Wrap long lines** | Long string values push the formatted view far to the right | A "Wrap" toggle in the result header. CSS already exists for wrapped lines (used by Minify) | S |
 | **Text size** | Small screens and presentations need bigger code text | `A−` / `A+` in the result header changes one CSS variable for code size; remembered like the theme | S |
 

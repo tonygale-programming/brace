@@ -5,7 +5,16 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 12 November 2026
 
-Release `2026-11-12.2`.
+Releases `2026-11-12.2` and `2026-11-12.3`.
+
+**Polish after review** (`2026-11-12.3`)
+- Icons are 16px with a 1.5px line; buttons have 12px on the left, 8px between icon and label, 16px on the right.
+- Keyboard focus is a 1.5px yellow ring with a 1.5px gap around the control.
+- In dark mode the yellow is a deep olive (`#664C00`) with white text.
+- The status chip shows a small dot instead of an icon.
+- One **Expand all / Collapse all** button instead of two.
+- The logo uses Lucide's braces: `{brace}`.
+- Removed the privacy line from the header and the "Indent" label next to its dropdown.
 
 **New look** (from the [Brace design system](https://claude.ai/artifact/G2fKVhvYDpQxE6Rzz2rTHh))
 - **One field** instead of two panes: paste, then Format, Minify or Stringify change the text in place.

@@ -84,15 +84,16 @@
   --text-muted: light-dark(#50525a, #a6a8b1);
   --text-faint: light-dark(#6c6f78, #8c8e98);
 
-  /* Yellow: the main action (Format) and anything that is on or selected */
-  --accent: #ffbf00;
-  --accent-text: #000000;
+  /* Yellow: the main action (Format) and anything that is on or selected.
+     In dark it is a deep olive yellow with white text, which keeps the text readable. */
+  --accent: light-dark(#ffbf00, #664c00);
+  --accent-text: light-dark(#000000, #ffffff);
   --accent-soft: light-dark(#fff3c9, #40320a);
 
   /* Ink: the error card's Repair JSON button and the toast */
   --primary: light-dark(#000000, #ffffff);
   --primary-text: light-dark(#ffffff, #17181c);
-  --focus: light-dark(#000000, #ffffff);
+  --focus: #ffbf00; /* keyboard focus ring, both themes */
 
   /* States */
   --success: light-dark(#0a5c1f, #99ffb3);
@@ -125,9 +126,9 @@
   /* Sizes */
   --control-height: 32px; /* buttons, dropdowns and switches; 40px on touch screens */
   --chip-height: 24px;
-  --icon-size: 20px;
+  --icon-size: 16px;
   --border-width: 1.5px;
-  --focus-width: 2px;
+  --focus-width: 1.5px; /* focus ring thickness, and its gap from the control */
   --code-line-height: 20px;
   --gutter-width: 40px; /* line numbers */
 
@@ -189,7 +190,7 @@ body {
   height: var(--icon-size);
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.25; /* 1.5px on screen at 16px */
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -257,10 +258,25 @@ body {
 }
 
 .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   font: 600 22px/32px var(--font-code);
   letter-spacing: -0.02em;
   white-space: nowrap;
+}
+
+/* Lucide's braces, each half drawn on its own, in the same line style as the icons */
+.brand-brace {
+  flex: none;
+  width: auto;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .brand-tagline {
@@ -269,18 +285,6 @@ body {
   font: 500 13px/16px var(--font-ui);
 }
 
-.privacy-note {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-4);
-  color: var(--success);
-  font: 500 13px/16px var(--font-ui);
-}
-
-.privacy-note a {
-  color: inherit;
-  text-underline-offset: var(--space-2);
-}
 
 /* ---------- Buttons and dropdowns ---------- */
 
@@ -295,7 +299,7 @@ select,
   gap: var(--space-8);
   height: var(--control-height);
   margin: 0;
-  padding: 0 var(--space-12);
+  padding: 0 var(--space-16);
   border: var(--border-width) solid var(--border);
   border-radius: var(--radius-pill);
   background: var(--surface);
@@ -307,11 +311,11 @@ select,
   user-select: none;
 }
 
-/* A leading icon sits a little closer to the edge than a label does */
-button > .icon:first-child,
-.button > .icon:first-child,
-.file-button > .icon:first-child {
-  margin-left: calc(-1 * var(--space-2));
+/* With a leading icon: 12px on the left, 8px between icon and label, 16px on the right */
+button:has(> .icon:first-child),
+.button:has(> .icon:first-child),
+.file-button:has(> .icon:first-child) {
+  padding-left: var(--space-12);
 }
 
 button:hover,
@@ -321,7 +325,7 @@ select:hover,
   background: var(--surface-hover);
 }
 
-/* Keyboard focus: a solid ring in the ink colour, with yellow filling the gap */
+/* Keyboard focus: a 1.5px yellow ring, 1.5px away from the control */
 button:focus-visible,
 select:focus-visible,
 summary:focus-visible,
@@ -330,7 +334,6 @@ a:focus-visible,
 .tree-key:focus-visible {
   outline: var(--focus-width) solid var(--focus);
   outline-offset: var(--focus-width);
-  box-shadow: 0 0 0 var(--focus-width) var(--accent);
 }
 
 /* Format: the main action, filled yellow (Tony's choice; the design system keeps yellow for "on" only) */
@@ -376,25 +379,32 @@ button[aria-pressed="true"]:hover {
   color: var(--accent-text);
 }
 
+/* Expand all / Collapse all: one button that shows what a press will do */
+[aria-expanded="true"] .when-collapsed,
+[aria-expanded="false"] .when-expanded {
+  display: none;
+}
+
 /* The toggle's icon changes to a check when it is on */
 button[aria-pressed="true"] .when-off,
 button[aria-pressed="false"] .when-on {
   display: none;
 }
 
-.icon-only {
+.icon-only,
+button.icon-only:has(> .icon:first-child) {
   width: var(--control-height);
   padding: 0;
-}
-
-.icon-only > .icon:first-child {
-  margin-left: 0;
 }
 
 /* Buttons inside the path bar and the toast */
 .small {
   height: var(--chip-height);
-  padding: 0 var(--space-8);
+  padding: 0 var(--space-12);
+}
+
+button.small:has(> .icon:first-child) {
+  padding-left: var(--space-8);
 }
 
 button:disabled,
@@ -429,15 +439,7 @@ button:disabled:hover {
    so it is hidden and .select-control draws the chevron icon instead. */
 select {
   appearance: none;
-  padding-right: var(--space-32);
-}
-
-.select-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-8);
-  color: var(--text-muted);
-  font: 500 13px/16px var(--font-ui);
+  padding-right: calc(var(--space-12) + var(--icon-size) + var(--space-8));
 }
 
 .select-control {
@@ -449,7 +451,7 @@ select {
 .select-control > .icon {
   position: absolute;
   top: 50%;
-  right: var(--space-8);
+  right: var(--space-12);
   color: var(--text);
   transform: translateY(-50%);
   pointer-events: none;
@@ -490,6 +492,7 @@ select {
 
 .segmented-control button {
   height: 100%;
+  padding: 0 var(--space-12);
   border: 0;
   background: transparent;
 }
@@ -505,8 +508,17 @@ select {
   box-shadow: inset 0 0 0 var(--border-width) var(--border);
 }
 
+/* The focus ring goes around the whole pill, like every other control (a yellow ring would vanish on
+   the yellow selected segment), and the focused segment's label is underlined */
+.segmented-control:has(button:focus-visible) {
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-width);
+}
+
 .segmented-control button:focus-visible {
-  box-shadow: inset 0 0 0 var(--border-width) var(--border), 0 0 0 var(--focus-width) var(--accent);
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: var(--space-4);
 }
 
 /* ---------- The field ---------- */
@@ -524,7 +536,8 @@ select {
 
 /* The field you are typing in */
 .pane:focus-within {
-  box-shadow: 0 0 0 var(--focus-width) var(--accent);
+  outline: var(--focus-width) solid var(--focus);
+  outline-offset: var(--focus-width);
 }
 
 /* A file is being dragged over the page */
@@ -786,9 +799,9 @@ select {
   display: inline-flex;
   flex: none;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-8);
   height: var(--chip-height);
-  padding: 0 var(--space-12);
+  padding: 0 var(--space-12) 0 var(--space-8);
   border: var(--border-width) solid var(--border-subtle);
   border-radius: var(--radius-pill);
   color: var(--text-muted);
@@ -796,13 +809,17 @@ select {
   white-space: nowrap;
 }
 
-.status-chip .icon {
-  display: none;
+/* The dot takes the chip's text colour: dark green on mint, white on red, grey while waiting */
+.status-chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .status-chip.is-valid,
 .status-chip.is-invalid {
-  padding-left: var(--space-4);
   border-color: transparent;
 }
 
@@ -814,11 +831,6 @@ select {
 .status-chip.is-invalid {
   background: var(--danger-fill);
   color: var(--on-danger);
-}
-
-.status-chip.is-valid .when-valid,
-.status-chip.is-invalid .when-invalid {
-  display: block;
 }
 
 .stats {
@@ -969,13 +981,10 @@ kbd {
   }
 
   /* Header links keep their icon and drop their label */
-  .app-header .ghost {
+  .app-header .ghost,
+  .app-header .ghost:has(> .icon:first-child) {
     width: var(--control-height);
     padding: 0;
-  }
-
-  .app-header .ghost > .icon {
-    margin: 0;
   }
 
   .app-header .ghost > span {
