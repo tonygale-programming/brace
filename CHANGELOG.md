@@ -5,7 +5,7 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Release `2026-11-13.1`.
+Releases `2026-11-13.1` and `2026-11-13.2`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
@@ -15,6 +15,8 @@ Release `2026-11-13.1`.
 
 **Improved**
 - The focused Text · Tree pill shows only the yellow ring, without underlining the label.
+- The tagline stays visible at every width.
+- No separator lines between button groups; the gaps are enough.
 
 **Behind the scenes**
 - New `keyboard.js`: one list of shortcuts drives the keys, the list and the tooltips.

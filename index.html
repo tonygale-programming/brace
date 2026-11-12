@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-UF7j3IibSd7ibJ+JjtinDUo38/RHyRsVxqk7uhezy8s='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-G0Awj5cyirIhMYfqV7qdA4mGS+4Ms4AOAxjAi31kUwY='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.1">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.2">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.1",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.1",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.1",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.1",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.1",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.1",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.1",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.1",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.1",
-        "./js/download.js": "./js/download.js?v=2026-11-13.1",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.1",
-        "./js/html.js": "./js/html.js?v=2026-11-13.1",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.1",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.1"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.2",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.2",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.2",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.2",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.2",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.2",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.2",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.2",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.2",
+        "./js/download.js": "./js/download.js?v=2026-11-13.2",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.2",
+        "./js/html.js": "./js/html.js?v=2026-11-13.2",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.2",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.2"
       }
     }
   </script>
@@ -90,7 +90,6 @@
       <button type="button" class="main-action" id="format-button" title="Indent the JSON so it is easy to read"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="braces"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>Format</button>
       <button type="button" id="minify-button" title="Put the JSON on one line, without spaces"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="minimize-2"><path d="m14 10 7-7"/><path d="M20 10h-6V4"/><path d="m3 21 7-7"/><path d="M4 14h6v6"/></svg>Minify</button>
       <button type="button" id="stringify-button" title="Turn the JSON into one escaped string, ready to paste into code"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="quote"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>Stringify</button>
-      <span class="separator" aria-hidden="true"></span>
       <span class="select-control">
         <select id="indent-select" aria-label="Indent" title="Indent">
           <option value="2">2 spaces</option>
@@ -108,7 +107,6 @@
         <input type="file" id="file-input" accept=".json,application/json,text/plain" aria-label="Open a JSON file">
       </label>
       <button type="button" id="sample-button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Sample</button>
-      <span class="separator" aria-hidden="true"></span>
       <div class="segmented-control" role="tablist" aria-label="View">
         <button type="button" role="tab" id="text-tab" aria-selected="true" aria-controls="editor">Text</button>
         <button type="button" role="tab" id="tree-tab" aria-selected="false" aria-controls="tree-view">Tree</button>
@@ -183,6 +181,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.1"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.2"></script>
 </body>
 </html>
