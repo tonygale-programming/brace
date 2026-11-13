@@ -417,6 +417,19 @@ const SHORTCUTS = [
     keys: [{ key: '?', character: '?' }] },
 ];
 
+/**
+ * Closes a dialog when a click lands on the dimmed area around it. The browser reports those clicks on the
+ * dialog itself, so the click's position decides whether it was inside the window or outside.
+ */
+function closeOnOutsideClick(dialog) {
+  dialog.addEventListener('click', (event) => {
+    const box = dialog.getBoundingClientRect();
+    const isOutside = event.clientX < box.left || event.clientX > box.right
+      || event.clientY < box.top || event.clientY > box.bottom;
+    if (isOutside) dialog.close();
+  });
+}
+
 function bindEvents() {
   elements.input.addEventListener('input', handleTyping);
   elements.input.addEventListener('paste', handlePaste);
@@ -458,6 +471,7 @@ function bindEvents() {
   elements.themeButton.addEventListener('click', toggleTheme);
   elements.shortcutsButton.addEventListener('click', () => elements.shortcutsDialog.showModal());
   elements.shortcutsCloseButton.addEventListener('click', () => elements.shortcutsDialog.close());
+  closeOnOutsideClick(elements.shortcutsDialog);
 
   bindShortcuts(SHORTCUTS);
   renderShortcutList(getElement('shortcut-groups'), SHORTCUTS);

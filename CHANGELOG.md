@@ -5,13 +5,14 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Releases `2026-11-13.1` to `2026-11-13.11`.
+Releases `2026-11-13.1` to `2026-11-13.12`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
   `⇧⌥R` Repair, `⇧⌥T` Text / Tree, `⌘O` Open file, `⌘S` Download, `?` the list.
   On Windows and Linux: `Shift+Alt` and `Ctrl`.
 - The shortcuts list is grouped (Change the JSON, File, View), and button tooltips name their shortcut.
+- A click outside the shortcuts list closes it.
 
 **Fixed**
 - Pressing Stringify again kept adding backslashes. It now gives the same result, and the button is
