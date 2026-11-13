@@ -277,7 +277,8 @@ function loadSample() {
 
 function clearField() {
   state.fileName = DEFAULT_FILE_NAME;
-  replaceFieldTextWithUndo('', 'Cleared');
+  replaceFieldText(''); // Ctrl/⌘+Z still brings the text back
+  showToast('Cleared');
   elements.input.focus();
 }
 
