@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-pkwNELZiV/zzGLMoEwAJIm95ahhFuD2QyqrrBlkJ1V0='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-6/CiKq2KcJEtmyuAqjuESNJQYw/FI1xVCe0vtLQauKM='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.5">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.6">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.5",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.5",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.5",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.5",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.5",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.5",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.5",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.5",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.5",
-        "./js/download.js": "./js/download.js?v=2026-11-13.5",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.5",
-        "./js/html.js": "./js/html.js?v=2026-11-13.5",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.5",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.5"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.6",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.6",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.6",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.6",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.6",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.6",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.6",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.6",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.6",
+        "./js/download.js": "./js/download.js?v=2026-11-13.6",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.6",
+        "./js/html.js": "./js/html.js?v=2026-11-13.6",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.6",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.6"
       }
     }
   </script>
@@ -180,6 +180,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.5"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.6"></script>
 </body>
 </html>

@@ -266,7 +266,8 @@ function repairInput() {
     showToast('Repair cannot fix this one. Fix it by hand using the error details.', { durationMs: LONG_TOAST_MS });
     return;
   }
-  replaceFieldTextWithUndo(repairedText, 'Repaired');
+  replaceFieldText(repairedText); // Ctrl/⌘+Z still brings the original back
+  showToast('Repaired');
 }
 
 function loadSample() {
