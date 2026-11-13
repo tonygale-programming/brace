@@ -134,13 +134,16 @@ function refresh() {
 function updateButtons() {
   const isValid = Boolean(state.parsed);
   const isInvalid = Boolean(state.errorLocation);
-  const needsValidJson = [
-    elements.formatButton, elements.minifyButton, elements.stringifyButton,
-    elements.downloadButton, elements.copyButton, elements.treeTab,
-  ];
-  for (const button of needsValidJson) button.disabled = !isValid;
+  // Format, Minify, Stringify and Indent only shape the text, which the tree view hides.
+  // Sort keys stays, because it reorders the tree too.
+  const canShapeText = isValid && state.view === 'text';
+
+  for (const button of [elements.downloadButton, elements.copyButton, elements.treeTab]) button.disabled = !isValid;
+  elements.formatButton.disabled = !canShapeText;
+  elements.minifyButton.disabled = !canShapeText;
   // Text that Stringify made is already one escaped string; stringifying it again would only add backslashes
-  elements.stringifyButton.disabled = !isValid || state.parsed.isStringified;
+  elements.stringifyButton.disabled = !canShapeText || state.parsed.isStringified;
+  elements.indentSelect.disabled = state.view === 'tree';
   elements.repairButton.disabled = !(isInvalid && canRepair);
   elements.clearButton.disabled = !getFieldText().trim();
 }
@@ -318,6 +321,7 @@ function showView(view) {
     elements.expandToggle.setAttribute('aria-expanded', 'false');
     state.selectedValue = state.parsed.data;
   }
+  updateButtons();
 }
 
 function selectTreeKey(event) {

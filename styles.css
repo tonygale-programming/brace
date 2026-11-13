@@ -415,6 +415,11 @@ button:disabled:hover {
   background: var(--accent);
 }
 
+/* The dropdown's chevron fades with it */
+.select-control:has(select:disabled) > .icon {
+  opacity: 0.4;
+}
+
 /* A label styled as a button, with the real file input invisible on top of it */
 .file-button {
   position: relative;
