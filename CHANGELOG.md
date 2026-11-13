@@ -5,7 +5,7 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Releases `2026-11-13.1` to `2026-11-13.9`.
+Releases `2026-11-13.1` to `2026-11-13.10`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
@@ -20,6 +20,7 @@ Releases `2026-11-13.1` to `2026-11-13.9`.
 
 **Improved**
 - New app icon by Tony: black Lucide braces on yellow, for the browser tab and the installed app.
+- The link-preview image shown in chats and social networks uses the new look.
 - In tree view, Format, Minify, Stringify and Indent are disabled, because they only change the text, which
   the tree hides. Sort keys stays on, since it reorders the tree too.
 - Messages at the bottom are plain text, without buttons. ⌘Z undoes Repair, Clear and Sample like any other change.
