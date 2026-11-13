@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-+V7yZcsbicKEW4ax9EHn4ImmEd118l7e7GrdTowS9dU='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-g9vYPTRpmS4IoUbgkvXPTggA0PL0cQiEHHgHdFAlprQ='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -24,7 +24,7 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Icons and installing as an app -->
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon.svg?v=2026-11-13.9" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#e3e4e8" media="(prefers-color-scheme: light)">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.8">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.9">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.8",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.8",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.8",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.8",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.8",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.8",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.8",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.8",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.8",
-        "./js/download.js": "./js/download.js?v=2026-11-13.8",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.8",
-        "./js/html.js": "./js/html.js?v=2026-11-13.8",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.8",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.8"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.9",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.9",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.9",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.9",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.9",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.9",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.9",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.9",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.9",
+        "./js/download.js": "./js/download.js?v=2026-11-13.9",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.9",
+        "./js/html.js": "./js/html.js?v=2026-11-13.9",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.9",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.9"
       }
     }
   </script>
@@ -177,6 +177,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.8"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.9"></script>
 </body>
 </html>

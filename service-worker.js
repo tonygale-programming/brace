@@ -6,14 +6,15 @@
  * Each release gets its own cache, and older caches are deleted when it takes over.
  */
 
-const RELEASE = '2026-11-13.8';
+const RELEASE = '2026-11-13.9';
 const CACHE_PREFIX = 'brace-';
 const CACHE_NAME = `${CACHE_PREFIX}${RELEASE}`;
 const PAGE_URL = './';
 
-// Files that index.html loads with ?v=<release> in the URL
+// Files that index.html loads with ?v=<release> in the URL (the tab icon too)
 const VERSIONED_FILES = [
   'styles.css',
+  'icons/icon.svg',
   'js/main.js',
   'js/json-engine.js',
   'js/syntax-checker.js',
@@ -35,7 +36,6 @@ const VERSIONED_FILES = [
 const FIXED_FILES = [
   PAGE_URL,
   'manifest.webmanifest',
-  'icons/icon.svg',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
