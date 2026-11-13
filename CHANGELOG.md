@@ -5,7 +5,7 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Releases `2026-11-13.1` to `2026-11-13.10`.
+Releases `2026-11-13.1` to `2026-11-13.11`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
@@ -19,7 +19,8 @@ Releases `2026-11-13.1` to `2026-11-13.10`.
 - Turning Sort keys off now brings back the original key order (unless the JSON was edited since sorting).
 
 **Improved**
-- New app icon by Tony: black Lucide braces on yellow, for the browser tab and the installed app.
+- New app icon by Tony: black Lucide braces on a yellow circle, for the browser tab and the installed app
+  (a full square on iPhone and iPad, which round icons themselves).
 - The link-preview image shown in chats and social networks uses the new look.
 - In tree view, Format, Minify, Stringify and Indent are disabled, because they only change the text, which
   the tree hides. Sort keys stays on, since it reorders the tree too.

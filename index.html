@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-xqklX8abjRU2eU2Xw8e9kJS+XgO4e5nL6hWaZaYj5MQ='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-ZIhzjiea6+YpQWRAC+NvRAmQ44q/2iNmX1JcwKlMbg0='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -18,13 +18,13 @@
   <meta property="og:title" content="Brace JSON Formatter">
   <meta property="og:description" content="Format, validate and repair JSON. Private: nothing you paste leaves your browser.">
   <meta property="og:url" content="https://tonygale-programming.github.io/brace/">
-  <meta property="og:image" content="https://tonygale-programming.github.io/brace/icons/preview.png?v=2026-11-13.10">
+  <meta property="og:image" content="https://tonygale-programming.github.io/brace/icons/preview.png?v=2026-11-13.11">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Icons and installing as an app -->
-  <link rel="icon" href="icons/icon.svg?v=2026-11-13.10" type="image/svg+xml">
+  <link rel="icon" href="icons/icon.svg?v=2026-11-13.11" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#e3e4e8" media="(prefers-color-scheme: light)">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.10">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.11">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.10",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.10",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.10",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.10",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.10",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.10",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.10",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.10",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.10",
-        "./js/download.js": "./js/download.js?v=2026-11-13.10",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.10",
-        "./js/html.js": "./js/html.js?v=2026-11-13.10",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.10",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.10"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.11",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.11",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.11",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.11",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.11",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.11",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.11",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.11",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.11",
+        "./js/download.js": "./js/download.js?v=2026-11-13.11",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.11",
+        "./js/html.js": "./js/html.js?v=2026-11-13.11",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.11",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.11"
       }
     }
   </script>
@@ -177,6 +177,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.10"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.11"></script>
 </body>
 </html>
