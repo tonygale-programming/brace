@@ -168,13 +168,6 @@ function replaceFieldText(text) {
   return canUndo;
 }
 
-/** Replaces the field's text and offers an Undo button in the toast. */
-function replaceFieldTextWithUndo(text, message) {
-  const previousText = editor.getText();
-  replaceFieldText(text);
-  showToast(message, { onUndo: () => replaceFieldText(previousText) });
-}
-
 /* ---------- Format, Minify, Stringify ---------- */
 
 function getIndent() {
@@ -272,7 +265,8 @@ function repairInput() {
 
 function loadSample() {
   state.fileName = DEFAULT_FILE_NAME;
-  replaceFieldTextWithUndo(buildOutput(readJson(SAMPLE_JSON).data, 'format'), 'Sample loaded');
+  replaceFieldText(buildOutput(readJson(SAMPLE_JSON).data, 'format')); // Ctrl/⌘+Z brings back what was there
+  showToast('Sample loaded');
 }
 
 function clearField() {

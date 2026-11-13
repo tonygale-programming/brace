@@ -5,7 +5,7 @@ then changes behind the scenes. Release versions match the `?v=` value in `index
 
 ## 13 November 2026
 
-Releases `2026-11-13.1` to `2026-11-13.7`.
+Releases `2026-11-13.1` to `2026-11-13.8`.
 
 **New**
 - **Keyboard shortcuts** that browsers leave free: `⇧⌥F` Format (or `⌘Enter`), `⇧⌥M` Minify, `⇧⌥S` Stringify,
@@ -21,7 +21,7 @@ Releases `2026-11-13.1` to `2026-11-13.7`.
 **Improved**
 - In tree view, Format, Minify, Stringify and Indent are disabled, because they only change the text, which
   the tree hides. Sort keys stays on, since it reorders the tree too.
-- The Repaired and Cleared messages no longer have an Undo button (⌘Z still undoes both).
+- Messages at the bottom are plain text, without buttons. ⌘Z undoes Repair, Clear and Sample like any other change.
 - Copy path and Copy value are borderless, and so is the theme button, like the other header links.
 - The error's line and column are no longer repeated under the field; the error card and its
   Show in input button cover it.

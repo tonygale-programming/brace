@@ -31,7 +31,7 @@ There are dozens of online JSON formatters. Brace makes three promises:
 - Catches duplicate keys with conflicting values, which most tools accept silently
 - Tree view; click a key to copy its path (for example `$.order.items[0].sku`) or its value
 - Open a file or drop it anywhere on the page; **Download** the result as a `.json` file, or **Copy** it
-- **Undo** button after loading the Sample; `⌘Z` undoes everything else, including Clear and Repair
+- `⌘Z` undoes every change to the field: Format, Minify, Stringify, Repair, Sample and Clear
 - Light and dark themes: a first visit follows your system setting; the theme button switches and remembers it
 - **Works offline** and can be installed as an app (in Chrome or Edge: the install icon in the address bar)
 - Keyboard shortcuts: `⇧⌥F` Format, `⇧⌥M` Minify, `⇧⌥S` Stringify, `⇧⌥R` Repair, `⇧⌥T` Text / Tree, `⌘O` Open, `⌘S` Download, `?` lists them all (`Shift+Alt` and `Ctrl` on Windows and Linux)

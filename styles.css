@@ -390,7 +390,7 @@ button.icon-only:has(> .icon:first-child) {
   padding: 0;
 }
 
-/* Buttons inside the path bar and the toast */
+/* Buttons inside the path bar */
 .small {
   height: var(--chip-height);
   padding: 0 var(--space-12);
@@ -851,7 +851,6 @@ select {
   bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
   display: inline-flex;
   align-items: center;
-  gap: var(--space-12);
   min-height: 40px;
   padding: var(--space-8) var(--space-16);
   border-radius: var(--radius-pill);
@@ -859,31 +858,14 @@ select {
   color: var(--primary-text);
   font: 500 13px/16px var(--font-ui);
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* only a message, never in the way of a click */
   transform: translate(-50%, var(--space-8));
   transition: opacity 0.15s, transform 0.15s;
 }
 
 .toast.is-visible {
   opacity: 1;
-  pointer-events: auto;
   transform: translate(-50%, 0);
-}
-
-/* With an Undo button, the button sits flush in the rounded end */
-.toast:has(button:not([hidden])) {
-  padding-right: var(--space-8);
-}
-
-.toast button,
-.toast button:hover {
-  border-color: var(--primary-text);
-  background: transparent;
-  color: var(--primary-text);
-}
-
-.toast button:focus-visible {
-  outline-color: var(--primary-text);
 }
 
 /* ---------- Shortcuts dialog ---------- */

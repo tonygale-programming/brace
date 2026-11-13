@@ -7,7 +7,7 @@
        connect-src 'none' blocks fetch, XHR, WebSocket and beacons, so pasted JSON cannot leave
        the browser. The sha256 values allow exactly the two inline scripts below;
        scripts/release.py recalculates them, so never edit those scripts without running it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-nWffvCU2S10vpY+YETWabWjJPaU3W6fa2mFW4iN/QmE='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-XsPPtFbMHos+zZnvwBNAhJjVg34+CpXzOVRAkwQtmBc=' 'sha256-+V7yZcsbicKEW4ax9EHn4ImmEd118l7e7GrdTowS9dU='; style-src 'self'; font-src 'self'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 
   <title>Brace JSON Formatter</title>
   <meta name="description" content="Format, validate and repair JSON in your browser. Private: nothing you paste is uploaded, and it works offline.">
@@ -46,24 +46,24 @@
   <!-- Every own file carries ?v=<release>. Browsers cache files for 10 minutes, so a new
        release needs new URLs or visitors get the new page with old styles or scripts.
        Run scripts/release.py before pushing: see "Releasing" in the README. -->
-  <link rel="stylesheet" href="styles.css?v=2026-11-13.7">
+  <link rel="stylesheet" href="styles.css?v=2026-11-13.8">
   <script type="importmap">
     {
       "imports": {
-        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.7",
-        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.7",
-        "./js/editor.js": "./js/editor.js?v=2026-11-13.7",
-        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.7",
-        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.7",
-        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.7",
-        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.7",
-        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.7",
-        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.7",
-        "./js/download.js": "./js/download.js?v=2026-11-13.7",
-        "./js/storage.js": "./js/storage.js?v=2026-11-13.7",
-        "./js/html.js": "./js/html.js?v=2026-11-13.7",
-        "./js/theme.js": "./js/theme.js?v=2026-11-13.7",
-        "./js/offline.js": "./js/offline.js?v=2026-11-13.7"
+        "./js/json-engine.js": "./js/json-engine.js?v=2026-11-13.8",
+        "./js/syntax-checker.js": "./js/syntax-checker.js?v=2026-11-13.8",
+        "./js/editor.js": "./js/editor.js?v=2026-11-13.8",
+        "./js/error-card.js": "./js/error-card.js?v=2026-11-13.8",
+        "./js/status-bar.js": "./js/status-bar.js?v=2026-11-13.8",
+        "./js/highlighter.js": "./js/highlighter.js?v=2026-11-13.8",
+        "./js/tree-view.js": "./js/tree-view.js?v=2026-11-13.8",
+        "./js/notifications.js": "./js/notifications.js?v=2026-11-13.8",
+        "./js/keyboard.js": "./js/keyboard.js?v=2026-11-13.8",
+        "./js/download.js": "./js/download.js?v=2026-11-13.8",
+        "./js/storage.js": "./js/storage.js?v=2026-11-13.8",
+        "./js/html.js": "./js/html.js?v=2026-11-13.8",
+        "./js/theme.js": "./js/theme.js?v=2026-11-13.8",
+        "./js/offline.js": "./js/offline.js?v=2026-11-13.8"
       }
     }
   </script>
@@ -160,10 +160,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast" role="status">
-    <span id="toast-message"></span>
-    <button type="button" class="small" id="toast-action" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" data-lucide="undo-2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>Undo</button>
-  </div>
+  <div class="toast" id="toast" role="status"></div>
 
   <dialog class="dialog" id="shortcuts-dialog" aria-labelledby="shortcuts-title">
     <h2 id="shortcuts-title">Keyboard shortcuts</h2>
@@ -180,6 +177,6 @@
     integrity="sha384-ctyn1nJHmrUzPGMF/9OFj4kWb28qMVVUo8mxOFFsucMChxe5/pHDOpj/EKKPzQOG"></script>
 
   <!-- App code. Modules run after the page and the libraries above have loaded. -->
-  <script type="module" src="js/main.js?v=2026-11-13.7"></script>
+  <script type="module" src="js/main.js?v=2026-11-13.8"></script>
 </body>
 </html>

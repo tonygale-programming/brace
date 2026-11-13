@@ -4,38 +4,21 @@
 import { describeKeys } from './keyboard.js';
 
 export const SHORT_TOAST_MS = 1600;
-export const LONG_TOAST_MS = 4000; // long enough to reach the Undo button
+export const LONG_TOAST_MS = 4000; // for messages with a full sentence to read
 
 const toast = document.getElementById('toast');
-const toastMessage = document.getElementById('toast-message');
-const undoButton = document.getElementById('toast-action');
 let hideToastTimer = null;
-let pendingUndo = null;
-
-function hideToast() {
-  toast.classList.remove('is-visible');
-  pendingUndo = null;
-}
 
 /**
- * Shows one message; a new one replaces the old.
- * With onUndo, the toast carries an Undo button and stays up longer.
+ * Shows one short message, without buttons; a new one replaces the old.
+ * Undo is always Ctrl/⌘+Z, because every change to the field goes through the browser's editing history.
  */
-export function showToast(message, { durationMs, onUndo } = {}) {
-  toastMessage.textContent = message;
-  pendingUndo = onUndo ?? null;
-  undoButton.hidden = !onUndo;
+export function showToast(message, { durationMs = SHORT_TOAST_MS } = {}) {
+  toast.textContent = message;
   toast.classList.add('is-visible');
-
   clearTimeout(hideToastTimer);
-  hideToastTimer = setTimeout(hideToast, durationMs ?? (onUndo ? LONG_TOAST_MS : SHORT_TOAST_MS));
+  hideToastTimer = setTimeout(() => toast.classList.remove('is-visible'), durationMs);
 }
-
-undoButton.addEventListener('click', () => {
-  const undo = pendingUndo;
-  hideToast();
-  undo?.();
-});
 
 /**
  * Copies text. If the browser blocks clipboard access, selects the fallback
